@@ -101,7 +101,7 @@ You have to first pass a function checking your value is correct (should I go ri
 ##### From another data structure
 You can build an `Either` from an `Option`. It works exactly as the `fromNullable` as we've seen an Option could represent a nullable value.
 ```typescript
-  const noneValue = Option.none();
+  const noneValue = Option.none;
   const someValue = Option.some("value");
   
   const left = Either.fromOption('value was nullish')(noneValue) // Either.left('value was nullish')
