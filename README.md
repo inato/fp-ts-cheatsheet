@@ -132,7 +132,7 @@ You can also build a TaskEither from a Promise! You have the `tryCatch` helper, 
 
 ```typescript
   const asyncIsEven = async (a: number) => {
-    await sleep(1000);
+    await asyncExternalCall();
 
     if (a % 2 !== 0) {
       throw new Error('ODD');
