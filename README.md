@@ -27,7 +27,7 @@ You can think of an option as something that can be null or undefined.
 ##### From a value
 The easiest way to build an `Option` is to use the some or none constructor that returns a value encapsulated in an `Option`.
 ```typescript
-  const noneValue = Option.none();
+  const noneValue = Option.none;
   const someValue = Option.some("value");
 ```
 
