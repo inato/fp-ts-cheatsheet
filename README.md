@@ -1,7 +1,7 @@
 # FP-TS Cheat Sheet
 
 1. [Data Structures](#data-structures)
-2. [Chaining](#chaining)
+2. [Composing Functions](#chaining)
 
 ## <a name="data-structures"></a>Data Structures
 
@@ -149,7 +149,7 @@ You can also build a TaskEither from a Promise! You have the `tryCatch` helper, 
 ```
 
 
-## <a name="chaining"></a>Chaining
+## <a name="chaining"></a>Composing Functions
 
 In a functional paradigm, you want to have small functions, and to call them one after another to transform data easily.
 
