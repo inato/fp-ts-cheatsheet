@@ -21,6 +21,7 @@ Here are the ones we use:
     - [Get Value from an Either](#get-either)
   - [TaskEither](#taskeither)
     - [Build TaskEither](#build-taskeither)
+    - [Get Value from a TaskEither](#get-teither)
  
 ### <a name="option"></a>Option
  
@@ -241,6 +242,17 @@ You can also build a TaskEither from a Promise! You have the `tryCatch` helper, 
   const leftValue = buildTaskEither(3) // TaskEither.left('3 is odd')
 ```
 
+#### <a name="get-teither"></a>Get Value from a TaskEither
+
+In fp-ts, if you invoke a `TaskEither`, you get a `Promise<Either>` so most of the time, what we do is we invoke our TaskEither and then use the aforementioned methods on the `Either` to retrieve its value.
+
+```typescript
+const ten = TaskEither.right(10) // this is a right branch of a taskEither
+const rightValue = await ten() // we invoke ten, making it a Promise<Either> and then await the promise, so rightValut is an Either.right
+
+const returnedValue = Either.getOrElse(() => 0)(rightValue) // 10
+
+```
 
 ## <a name="chaining"></a>Composing Functions
 
