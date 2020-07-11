@@ -18,6 +18,7 @@ Here are the ones we use:
     - [Get Value from an Option](#get-options)
   - [Either](#either)
     - [Build Either](#build-either)
+    - [Get Value from an Either](#get-either)
   - [TaskEither](#taskeither)
     - [Build TaskEither](#build-taskeither)
  
@@ -61,7 +62,7 @@ You can build an `Option` from an `Either`. If the Either is in its left state (
 
 #### <a name="get-options"></a>Get Value from an Option
 
-When your value is encapsulated into an Option, you sometimes want to retrieve it and opt-out of the functional paradigm. For example if you want to give it to the outside world, in a graphql resolver for example.
+When your value is encapsulated into an Option, you sometimes want to retrieve it and opt-out of the functional paradigm. For example if you want to give it to the outside world, in a graphql resolver.
 
 ##### Get the value or <null | undefined>
 
@@ -163,6 +164,29 @@ You can build an `Either` from an `Option`. It works exactly as the `fromNullabl
   
   const left = Either.fromOption('value was nullish')(noneValue) // Either.left('value was nullish')
   const right = Either.fromOption('value was nullish')(someValue) // Either.right('value')
+```
+
+#### <a name="get-either"></a>Get Value from an Either
+
+This part looks a lot like the `Option` part. There are two `Either` "destructors", which are really similar to the ones we've seen above.
+
+##### Compute left and right branches
+
+The `fold` destructor also takes two functions, the first one representing what to do on left branch, the second one what to do on right branch.
+```typescript
+const leftValue = Either.left("Division by Zero!")
+const rightValue = Either.right(10)
+
+const doubleOrZero = Either.fold(
+  (eitherError: string) => {
+    console.log(`The error was ${eitherError}`;
+    return 0;
+  }, // on left branch
+  (value: number) => 2 * value, // on right branch
+);
+
+doubleOrZero(leftValue); // logs "The error was Division by Zero!" and returns 0
+doubleOrZero(rightValue); // 20
 ```
 
 ### <a name="taskeither"></a>TaskEither
