@@ -170,6 +170,18 @@ You can build an `Either` from an `Option`. It works exactly as the `fromNullabl
 
 This part looks a lot like the `Option` part. There are two `Either` "destructors", which are really similar to the ones we've seen above.
 
+##### Get value or default
+
+The `getOrElse` destructor and its `getOrElseW` version work exactly as the one from `Option`. You have to pass it what to return if you are in the left branch.
+
+```typescript
+const leftValue = Either.left("Division by Zero!")
+const rightValue = Either.right(10)
+
+Either.getOrElse(() => 0)(leftValue); // 0
+Either.getOrElse(() => 0)(rightValue); // 10
+```
+
 ##### Compute left and right branches
 
 The `fold` destructor also takes two functions, the first one representing what to do on left branch, the second one what to do on right branch.
