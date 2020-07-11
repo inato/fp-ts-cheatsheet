@@ -1,4 +1,7 @@
-# FP-TS Cheat Sheet
+# FP-TS 101
+
+This aims to present how we use fpts at Inato.
+I have mainly compiled the work of my wonderful colleagues @LaureRc and @punie
 
 1. [Data Structures](#data-structures)
 2. [Composing Functions](#chaining)
