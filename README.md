@@ -90,6 +90,12 @@ Option.getOrElse(() => "default")(someValue) // "value"
 Option.getOrElseW(() => 3)(noneValue) // 3
 ```
 
+##### Compute and get the value
+
+The last way to get your value is `fold` and it allows you to compute before returning it.
+it takes a two functions, the first one is executed if your Option is `none`, the second one 
+
+
 ### <a name="either"></a>Either
  
 An Either represents a computation that can have two results, called branches or tracks (left and right).
