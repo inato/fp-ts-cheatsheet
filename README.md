@@ -1,7 +1,7 @@
 # FP-TS 101
 
 This aims to present how we use fpts at Inato.
-I have mainly compiled the work of my wonderful colleagues @LaureRc and @punie
+I have mainly compiled the work of my wonderful colleagues [@LaureRC](https://github.com/LaureRC) and [@punie](https://github.com/punie)
 
 1. [Data Structures](#data-structures)
 2. [Composing Functions](#chaining)
