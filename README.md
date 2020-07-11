@@ -93,7 +93,20 @@ Option.getOrElseW(() => 3)(noneValue) // 3
 ##### Compute and get the value
 
 The last way to get your value is `fold` and it allows you to compute before returning it.
-it takes a two functions, the first one is executed if your Option is `none`, the second one 
+it takes a two functions, the first one is executed if your Option is `none`, the second one if your `Option` contains some value.
+
+```typescript
+const noneValue = Option.none
+const someValue = Option.of(10)
+
+const doubleOrZero = Option.fold(
+  () => 0, // this is called when your Option is none
+  (n: number) => 2 * n // called when your Option has some value
+)
+
+doubleOrZero(noneValue); // 0
+doubleOrZero(someValue); // 20  
+```
 
 
 ### <a name="either"></a>Either
