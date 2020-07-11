@@ -12,6 +12,7 @@ Think about an `Array`. It is a data structure encapsulating a group of values o
 Here are the ones we use:
   - [Option](#option)
     - [Build Options](#build-options)
+    - [Get Value from an Option](#get-options)
   - [Either](#either)
     - [Build Either](#build-either)
   - [TaskEither](#taskeither)
@@ -53,6 +54,40 @@ You can build an `Option` from an `Either`. If the Either is in its left state (
   
   const noneValue = Option.fromEither(leftEither) // Option.None
   const optionValue = Option.fromNullable(rightEither) // Option.Some("value")
+```
+
+#### <a name="get-options"></a>Get Value from an Option
+
+When your value is encapsulated into an Option, you sometimes want to retrieve it and opt-out of the functional paradigm. For example if you want to give it to the outside world, in a graphql resolver for example.
+
+##### Get the value or <null | undefined>
+
+Easiest way is to use the `toNullable` or `toUndefined` helpers. They are pretty straightforward, if your Option contains a value, you get it, otherwise you get null or undefined:
+
+```typescript
+const noneValue = Option.none
+const someValue = Option.of("value")
+
+Option.toUndefined(noneValue) // undefined
+Option.toUndefined(someValue) // "value"
+Option.toNullable(noneValue) // null
+Option.toNullable(someValue) // "value"
+```
+
+##### Get the value with a default
+
+You can use one of the following helper to retrieve your value or have a default if your `Option` is in `none` state. 
+
+`getOrElse` takes a function as parameter that returns the default value for `none`. Please note the default value must have the same type as your initial Option. Eg: `getOrElse` on an `Option<number>` must return a `number`. If you want to return another type, you can use `getOrElseW`.
+
+```typescript
+const noneValue = Option.none
+const someValue = Option.of("value")
+
+Option.getOrElse(() => "default")(noneValue) // "default"
+Option.getOrElse(() => "default")(someValue) // "value"
+
+Option.getOrElseW(() => 3)(noneValue) // 3
 ```
 
 ### <a name="either"></a>Either
