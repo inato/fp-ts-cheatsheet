@@ -330,6 +330,7 @@ Your value is encapsulated in a context, for example you computed your `currentU
 
 - [Mapping Options](#mapoption)
 - [Mapping Either](#mapeither)
+- [Mapping TaskEither](#maptaskeither)
 
 So you have a context containing your value, `Either<number>` but you want to transform it with a function that takes an input of your value type. Eg: `double: (number) => (number)`. Unfortunately, you cannot do `double(myEitherNumber)`.
 
@@ -412,3 +413,7 @@ const leftValue = Either.left(3);
 doubleOrError(rightValue); // Either.right(4)
 doubleOrError(leftValue); // Either.left("3 is odd and in Error State")
 ```
+
+##### <a name="maptaskeither"></a> Mapping TaskEither
+
+It's really exactly the same as mapping `Either` same functions available, same api.
