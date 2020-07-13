@@ -271,7 +271,7 @@ In a functional paradigm, you want to have small functions, and to call them one
 - [Basics](#chaining-basics)
   - [Pipe](#pipe)
   - [Flow](#flow)
-- [Working with data structures](#combinators)
+- [Working with data structures: Combinators](#combinators)
   - [Mapping](#map)
 
 ### <a name="chaining-basics"></a>Basics
