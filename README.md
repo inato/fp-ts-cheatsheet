@@ -261,6 +261,8 @@ In a functional paradigm, you want to have small functions, and to call them one
 - [Basics](#chaining-basics)
   - [Pipe](#pipe)
   - [Flow](#flow)
+- [Working with data structures](#combinators)
+  - [Mapping](#map)
 
 ### <a name="chaining-basics"></a>Basics
 
@@ -311,3 +313,50 @@ const value = "value";
 const finalValue = transformData(value)
 ```
 Here `transformData` could be reused somewhere else, be simple and easy to pipe with other stuff.
+
+### <a name="combinators"></a>Working with data structures: Combinators
+
+Let's say you have a datastructure containing a value you wanna work with. You can have an `Option.some(3)` or an `Either.right(currentUser)` or even `["some", "strings"]`.
+Your value is encapsulated in a context, for example you computed your `currentUser` and maybe the computation could fail. To keep working with the value without removing its context (what we've seen above), we'll use combinators.
+
+#### <a name="map"></a> Mapping
+
+- [Mapping Options](#mapoption)
+
+So you have a context containing your value, `Either<number>` but you want to transform it with a function that takes an input of your value type. Eg: `double: (number) => (number)`. Unfortunately, you cannot do `double(myEitherNumber)`.
+
+You will use `map`. Map will unwrap the value, apply the function and then wrap the value again in its context. That's it.
+`map` takes a function as parameter (the function transforming the value) and can then be applied to the value.
+
+```typescript
+const doubleIfEven = (n: number) => n % 2 === 0 ? 2 * n : n
+
+const optionEven = Option.some(2);
+const optionOdd = Option.some(3);
+
+Option.map(doubleIfEven)(optionEven) // Option.some(4)
+
+pipe(
+  optionOdd
+  Option.map(doubleIfEven)
+) // Option.some(3)
+```
+
+According to your datastructure, maps behave differently. We all know the JS `Array.prototype.map` which actually unwraps values from an array, transform those values with a function, and then repacks the values in an Array.
+
+```typesccript
+[1, 2, 3].map(doubleIfEven) // [1, 4, 3]
+FPArray.map(doubleIfEven)([1, 2, 3]) // same result but using fp-ts
+```
+
+##### <a name="mapoption"></a> Mapping Options
+
+`Map` behavior on Options is pretty simple. If there is `some` value, it will apply the function to the value. If the Option is `none`, it will just return `none`.
+
+```typescript
+const someOption = Option.some(2);
+const noneOption = Option.none;
+
+Option.map(doubleIfEven)(someOption) // Option.some(4)
+Option.map(doubleIfEven)(noneOption) // Option.none
+```
