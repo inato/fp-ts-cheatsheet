@@ -322,6 +322,7 @@ Your value is encapsulated in a context, for example you computed your `currentU
 #### <a name="map"></a> Mapping
 
 - [Mapping Options](#mapoption)
+- [Mapping Either](#mapeither)
 
 So you have a context containing your value, `Either<number>` but you want to transform it with a function that takes an input of your value type. Eg: `double: (number) => (number)`. Unfortunately, you cannot do `double(myEitherNumber)`.
 
@@ -344,9 +345,20 @@ pipe(
 
 According to your datastructure, maps behave differently. We all know the JS `Array.prototype.map` which actually unwraps values from an array, transform those values with a function, and then repacks the values in an Array.
 
-```typesccript
+```typescript
 [1, 2, 3].map(doubleIfEven) // [1, 4, 3]
 FPArray.map(doubleIfEven)([1, 2, 3]) // same result but using fp-ts
+```
+
+`map` allows you to go from `DataStructure<A>` to `DataStructure<B>` as you can apply any function going from `A`.
+
+```typescript
+pipe(
+  facility, // Option<Facility>
+  Option.map(
+	  (facility: Facility) => facility.country.code,
+	) // => returns an Option<CountryCode>
+);
 ```
 
 ##### <a name="mapoption"></a> Mapping Options
@@ -360,3 +372,44 @@ const noneOption = Option.none;
 Option.map(doubleIfEven)(someOption) // Option.some(4)
 Option.map(doubleIfEven)(noneOption) // Option.none
 ```
+
+##### <a name="mapeither"></a> Mapping Either
+
+Remeber `Either` is generally considered as "Everything went well" (right branch) vs "Something happened" (left branch).
+So `map` will only transform your data if you are in the right branch.
+
+If you want to map on the left branch, you can use `mapLeft`!
+
+```typescript
+const rightValue = Either.right(2);
+const leftValue = Either.left(2);
+
+Either.map(doubleIfEven)(rightValue) // Either.right(4)
+Either.map(doubleIfEven)(leftValue) // Either.left(2)
+
+Either.mapLeft(doubleIfEven)(leftValue) // Either.left(4)
+```
+
+Eventually, there is also a bimap helper mapping the first function to the left branch, and the second function to the right branch
+
+```typescript
+const evenErrorMessage = (n: number) => {
+ if (n % 2 === 0) return `${n} is even but in Error State`;
+ 
+ return `${n} is odd and in Error State`;
+};
+
+const doubleOrError = Either.bimap(
+  evenErrorMessage,
+  doubleIfEven
+);
+
+const rightValue = Either.right(2);
+const leftValue = Either.left(3);
+
+doubleOrError(rightValue) // Either.right(4)
+doubleOrError(leftValue) // Either.left("3 is odd and in Error State")
+
+Either.mapLeft(doubleIfEven)(leftValue) // Either.left(4)
+```
+
