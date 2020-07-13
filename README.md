@@ -10,55 +10,62 @@ I have mainly compiled the work of my wonderful colleagues [@LaureRC](https://gi
 
 Functional programming is all about data-structures that encapsulate values to give them more context.
 
-Think about an `Array`. It is a data structure encapsulating a group of values of the same type. The `Array` gives a context of "there are multiple values". It's the same with the data structures we use in FP. 
+Think about an `Array`. It is a data structure encapsulating a group of values of the same type. The `Array` gives a context of "there are multiple values". It's the same with the data structures we use in FP.
 
 Here are the ones we use:
-  - [Option](#option)
-    - [Build Options](#build-options)
-    - [Get Value from an Option](#get-options)
-  - [Either](#either)
-    - [Build Either](#build-either)
-    - [Get Value from an Either](#get-either)
-  - [TaskEither](#taskeither)
-    - [Build TaskEither](#build-taskeither)
-    - [Get Value from a TaskEither](#get-teither)
- 
+
+- [Option](#option)
+  - [Build Options](#build-options)
+  - [Get Value from an Option](#get-options)
+- [Either](#either)
+  - [Build Either](#build-either)
+  - [Get Value from an Either](#get-either)
+- [TaskEither](#taskeither)
+  - [Build TaskEither](#build-taskeither)
+  - [Get Value from a TaskEither](#get-teither)
+
 ### <a name="option"></a>Option
- 
+
 An Option represents a value which might be there, or not. If it's there then it is `Option.Some(value)` and if not it is `Option.none`
 You can think of an option as something that can be null or undefined.
 
 #### <a name="build-options"></a>Building an Option
 
 ##### From a value
+
 The easiest way to build an `Option` is to use the some or none constructor that returns a value encapsulated in an `Option`.
+
 ```typescript
-  const noneValue = Option.none;
-  const someValue = Option.some("value");
+const noneValue = Option.none;
+const someValue = Option.some("value");
 ```
 
 If you have a value and want to check it you can use `fromNullable`. If the value is `null | undefined` you get a `Option.None` otherwise you get the value wrapped in an `Option` data structure.
+
 ```typescript
-  const noneValue = Option.fromNullable(null); // Option.None
-  const optionValue = Option.fromNullable("value"); // Option.Some("value")
+const noneValue = Option.fromNullable(null); // Option.None
+const optionValue = Option.fromNullable("value"); // Option.Some("value")
 ```
 
-You can also pass you own validation function to build an `Option` with the fromPredicate helper: 
+You can also pass you own validation function to build an `Option` with the fromPredicate helper:
+
 ```typescript
-  const isEven = number => number % 2 === 0
-  
-  const noneValue = Option.fromPredicate(isEven)(3) // Option.None
-  const optionValue = Option.fromPredicate(isEven)(4) // Option.Some(4)
+const isEven = (number) => number % 2 === 0;
+
+const noneValue = Option.fromPredicate(isEven)(3); // Option.None
+const optionValue = Option.fromPredicate(isEven)(4); // Option.Some(4)
 ```
 
 ##### From another data structure
+
 You can build an `Option` from an `Either`. If the Either is in its left state (~ error) you get an `Option.None`, otherwise you get an `Option.Some` of the value in the Either
+
 ```typescript
-  const leftEither = Either.left("whatever");
-  const rightEither = Either.right("value");
-  
-  const noneValue = Option.fromEither(leftEither) // Option.None
-  const optionValue = Option.fromNullable(rightEither) // Option.Some("value")
+const leftEither = Either.left("whatever");
+const rightEither = Either.right("value");
+
+const noneValue = Option.fromEither(leftEither); // Option.None
+const optionValue = Option.fromNullable(rightEither); // Option.Some("value")
 ```
 
 #### <a name="get-options"></a>Get Value from an Option
@@ -70,29 +77,29 @@ When your value is encapsulated into an Option, you sometimes want to retrieve i
 Easiest way is to use the `toNullable` or `toUndefined` helpers. They are pretty straightforward, if your Option contains a value, you get it, otherwise you get null or undefined:
 
 ```typescript
-const noneValue = Option.none
-const someValue = Option.of("value")
+const noneValue = Option.none;
+const someValue = Option.of("value");
 
-Option.toUndefined(noneValue) // undefined
-Option.toUndefined(someValue) // "value"
-Option.toNullable(noneValue) // null
-Option.toNullable(someValue) // "value"
+Option.toUndefined(noneValue); // undefined
+Option.toUndefined(someValue); // "value"
+Option.toNullable(noneValue); // null
+Option.toNullable(someValue); // "value"
 ```
 
 ##### Get the value with a default
 
-You can use one of the following helper to retrieve your value or have a default if your `Option` is in `none` state. 
+You can use one of the following helper to retrieve your value or have a default if your `Option` is in `none` state.
 
 `getOrElse` takes a function as parameter that returns the default value for `none`. Please note the default value must have the same type as your initial Option. Eg: `getOrElse` on an `Option<number>` must return a `number`. If you want to return another type, you can use `getOrElseW`.
 
 ```typescript
-const noneValue = Option.none
-const someValue = Option.of("value")
+const noneValue = Option.none;
+const someValue = Option.of("value");
 
-Option.getOrElse(() => "default")(noneValue) // "default"
-Option.getOrElse(() => "default")(someValue) // "value"
+Option.getOrElse(() => "default")(noneValue); // "default"
+Option.getOrElse(() => "default")(someValue); // "value"
 
-Option.getOrElseW(() => 3)(noneValue) // 3
+Option.getOrElseW(() => 3)(noneValue); // 3
 ```
 
 ##### Compute and get the value
@@ -101,21 +108,20 @@ The last way to get your value is `fold` and it allows you to compute before ret
 it takes a two functions, the first one is executed if your Option is `none`, the second one if your `Option` contains some value.
 
 ```typescript
-const noneValue = Option.none
-const someValue = Option.of(10)
+const noneValue = Option.none;
+const someValue = Option.of(10);
 
 const doubleOrZero = Option.fold(
   () => 0, // this is called when your Option is none
   (n: number) => 2 * n // called when your Option has some value
-)
+);
 
 doubleOrZero(noneValue); // 0
-doubleOrZero(someValue); // 20  
+doubleOrZero(someValue); // 20
 ```
 
-
 ### <a name="either"></a>Either
- 
+
 An Either represents a computation that can have two results, called branches or tracks (left and right).
 
 Most of the time, we use it to represent a **computation that can fail**.
@@ -123,48 +129,51 @@ So the left branch represents the failure, and the right branch the success. So 
 
 An Either is typed `Either<E, A>` where `E` is the type of the left track (E for `Error` most of the time) and `A` the right track.
 
-
 #### <a name="build-either"></a>Building an Either
 
 ##### From a value
 
 The easiest way to build an `Either` is to use the right or left constructor that returns a value encapsulated as a right or left `Either`.
+
 ```typescript
-  const leftValue = Either.left("value"); // -> you are on the left branch
-  const rightValue = Either.right("value"); // -> you are on the right branch
+const leftValue = Either.left("value"); // -> you are on the left branch
+const rightValue = Either.right("value"); // -> you are on the right branch
 ```
 
 You have also a `fromNullable` helper. If the value is `null` or `undefined` you need to provide your Either what to put in the left track, otherwise it will put your value in the right track.
-```typescript
-  const leftValue = Either.fromNullable('value was nullish')(null); // Either.left('value was nullish')
-  const optionValue = Either.fromNullable('value was nullish')("value"); // Either.right("value")
-```
 
+```typescript
+const leftValue = Either.fromNullable("value was nullish")(null); // Either.left('value was nullish')
+const optionValue = Either.fromNullable("value was nullish")("value"); // Either.right("value")
+```
 
 You can also pass you own validation function to build an `Either` with the fromPredicate helper. Here it is a bit more complicated.
 You have to first pass a function checking your value is correct (should I go right or left track). This function can be a simple function returning a boolean, or a type guard. And then pass a value for the left track.
+
 ```typescript
- type EvenNumber = number;
- const isEven = (num: number) => num % 2 === 0;
- const isEvenTypeGuard = (num: number): num is EvenNumber => num % 2 === 0;
- const eitherBuilder = Either.fromPredicate(
-   isEven, // here we could use isEvenTypeGuard to infer the number type and have an Either<E, EvenNumber>
-   (number) => `${number} is an odd number`
- );
- // Here when you use eitherBuilder you get something with the type Either<string, number>
-  
- const leftValue = eitherBuilder(3) // Either.left('3 is an odd number')
- const rightValue = eitherBuilder(4) // Either.right(4)
+type EvenNumber = number;
+const isEven = (num: number) => num % 2 === 0;
+const isEvenTypeGuard = (num: number): num is EvenNumber => num % 2 === 0;
+const eitherBuilder = Either.fromPredicate(
+  isEven, // here we could use isEvenTypeGuard to infer the number type and have an Either<E, EvenNumber>
+  (number) => `${number} is an odd number`
+);
+// Here when you use eitherBuilder you get something with the type Either<string, number>
+
+const leftValue = eitherBuilder(3); // Either.left('3 is an odd number')
+const rightValue = eitherBuilder(4); // Either.right(4)
 ```
 
 ##### From another data structure
+
 You can build an `Either` from an `Option`. It works exactly as the `fromNullable` as we've seen an Option could represent a nullable value.
+
 ```typescript
-  const noneValue = Option.none;
-  const someValue = Option.some("value");
-  
-  const left = Either.fromOption('value was nullish')(noneValue) // Either.left('value was nullish')
-  const right = Either.fromOption('value was nullish')(someValue) // Either.right('value')
+const noneValue = Option.none;
+const someValue = Option.some("value");
+
+const left = Either.fromOption("value was nullish")(noneValue); // Either.left('value was nullish')
+const right = Either.fromOption("value was nullish")(someValue); // Either.right('value')
 ```
 
 #### <a name="get-either"></a>Get Value from an Either
@@ -176,8 +185,8 @@ This part looks a lot like the `Option` part. There are two `Either` "destructor
 The `getOrElse` destructor and its `getOrElseW` version work exactly as the one from `Option`. You have to pass it what to return if you are in the left branch.
 
 ```typescript
-const leftValue = Either.left("Division by Zero!")
-const rightValue = Either.right(10)
+const leftValue = Either.left("Division by Zero!");
+const rightValue = Either.right(10);
 
 Either.getOrElse(() => 0)(leftValue); // 0
 Either.getOrElse(() => 0)(rightValue); // 10
@@ -186,6 +195,7 @@ Either.getOrElse(() => 0)(rightValue); // 10
 ##### Compute left and right branches
 
 The `fold` destructor also takes two functions, the first one representing what to do on left branch, the second one what to do on right branch.
+
 ```typescript
 const leftValue = Either.left("Division by Zero!")
 const rightValue = Either.right(10)
@@ -209,12 +219,12 @@ So quite simply a `TaskEither` is an asychronous computation that can have two r
 
 A TaskEither is typed `TaskEither<A, B>` where `A` is the type of the left track and `B` the right track.
 
-
 #### <a name="build-taskeither"></a>Building a TaskEither
 
 ##### From a value
 
 You can build a TaskEither as you would build an Either: `left`, `right`, `fromNullable`, `fromPredicate`.
+
 ```typescript
   const leftValue = TaskEither.left("value");
   const rightValue = TaskEither.right("value");
@@ -225,21 +235,22 @@ You can build a TaskEither as you would build an Either: `left`, `right`, `fromN
 You can also build a TaskEither from a Promise! You have the `tryCatch` helper, that takes two functions as arguments. The first one returns a promise, and the second one returns the value to put in left if the promise rejects.
 
 ```typescript
-  const asyncIsEven = async (a: number) => {
-    await asyncExternalCall();
+const asyncIsEven = async (a: number) => {
+  await asyncExternalCall();
 
-    if (a % 2 !== 0) {
-      throw new Error('ODD');
-    }
-    return a;
+  if (a % 2 !== 0) {
+    throw new Error("ODD");
   }
-  const buildTaskEither = (number: number) => TaskEither.tryCatch(
+  return a;
+};
+const buildTaskEither = (number: number) =>
+  TaskEither.tryCatch(
     () => asyncIsEven(number),
     () => `${number} is odd`
   );
-  
-  const rightValue = buildTaskEither(4) // TaskEither.right(4)
-  const leftValue = buildTaskEither(3) // TaskEither.left('3 is odd')
+
+const rightValue = buildTaskEither(4); // TaskEither.right(4)
+const leftValue = buildTaskEither(3); // TaskEither.left('3 is odd')
 ```
 
 #### <a name="get-teither"></a>Get Value from a TaskEither
@@ -247,11 +258,10 @@ You can also build a TaskEither from a Promise! You have the `tryCatch` helper, 
 In fp-ts, if you invoke a `TaskEither`, you get a `Promise<Either>` so most of the time, what we do is we invoke our TaskEither and then use the aforementioned methods on the `Either` to retrieve its value.
 
 ```typescript
-const ten = TaskEither.right(10) // this is a right branch of a taskEither
-const rightValue = await ten() // we invoke ten, making it a Promise<Either> and then await the promise, so rightValut is an Either.right
+const ten = TaskEither.right(10); // this is a right branch of a taskEither
+const rightValue = await ten(); // we invoke ten, making it a Promise<Either> and then await the promise, so rightValut is an Either.right
 
-const returnedValue = Either.getOrElse(() => 0)(rightValue) // 10
-
+const returnedValue = Either.getOrElse(() => 0)(rightValue); // 10
 ```
 
 ## <a name="chaining"></a>Composing Functions
@@ -271,6 +281,7 @@ In a functional paradigm, you want to have small functions, and to call them one
 The `pipe` function creates a "pipeline" to transform data. It takes one value as a starting point, and several functions, and then passes the value into the first function, then the return value of the first function into the second function etc...
 
 In classic imperative style we would do:
+
 ```typescript
 const value = "value";
 const value1 = addSthg(value);
@@ -278,17 +289,15 @@ const value2 = doSthgElse(value1);
 const finalValue = doFinalSthg(value2);
 ```
 
-It's the same as: 
+It's the same as:
+
 ```typescript
 const value = "value";
-const finalValue = pipe(
-  value,
-  addSthg,
-  doSthgElse,
-  doFinalSthg
-);
+const finalValue = pipe(value, addSthg, doSthgElse, doFinalSthg);
 ```
+
 Remark: as you pass **one** value through your pipe, that's why `fp-ts` functions tend to accept only one value, it's easier to pipe them and so on, as we can see here:
+
 ```typescript
 const myOption = pipe(
   "value",
@@ -301,17 +310,15 @@ const myOption = pipe(
 
 The `flow` function works exactly as the `pipe`, without the first value. It creates the pipeline of data but does not transform anything, it returns a function that can be used somewhere else (in a pipe possibly!)
 
-We could rewrite the above example as: 
+We could rewrite the above example as:
+
 ```typescript
-const transformData = flow(
-  addSthg,
-  doSthgElse,
-  doFinalSthg
-); // please note it's exactly as the original pipe, without the first value
+const transformData = flow(addSthg, doSthgElse, doFinalSthg); // please note it's exactly as the original pipe, without the first value
 
 const value = "value";
-const finalValue = transformData(value)
+const finalValue = transformData(value);
 ```
+
 Here `transformData` could be reused somewhere else, be simple and easy to pipe with other stuff.
 
 ### <a name="combinators"></a>Working with data structures: Combinators
@@ -346,8 +353,8 @@ pipe(
 According to your datastructure, maps behave differently. We all know the JS `Array.prototype.map` which actually unwraps values from an array, transform those values with a function, and then repacks the values in an Array.
 
 ```typescript
-[1, 2, 3].map(doubleIfEven) // [1, 4, 3]
-FPArray.map(doubleIfEven)([1, 2, 3]) // same result but using fp-ts
+[1, 2, 3].map(doubleIfEven); // [1, 4, 3]
+FPArray.map(doubleIfEven)([1, 2, 3]); // same result but using fp-ts
 ```
 
 `map` allows you to go from `DataStructure<A>` to `DataStructure<B>` as you can apply any function going from `A`.
@@ -355,9 +362,7 @@ FPArray.map(doubleIfEven)([1, 2, 3]) // same result but using fp-ts
 ```typescript
 pipe(
   facility, // Option<Facility>
-  Option.map(
-	  (facility: Facility) => facility.country.code,
-	) // => returns an Option<CountryCode>
+  Option.map((facility: Facility) => facility.country.code) // => returns an Option<CountryCode>
 );
 ```
 
@@ -369,8 +374,8 @@ pipe(
 const someOption = Option.some(2);
 const noneOption = Option.none;
 
-Option.map(doubleIfEven)(someOption) // Option.some(4)
-Option.map(doubleIfEven)(noneOption) // Option.none
+Option.map(doubleIfEven)(someOption); // Option.some(4)
+Option.map(doubleIfEven)(noneOption); // Option.none
 ```
 
 ##### <a name="mapeither"></a> Mapping Either
@@ -384,32 +389,26 @@ If you want to map on the left branch, you can use `mapLeft`!
 const rightValue = Either.right(2);
 const leftValue = Either.left(2);
 
-Either.map(doubleIfEven)(rightValue) // Either.right(4)
-Either.map(doubleIfEven)(leftValue) // Either.left(2)
+Either.map(doubleIfEven)(rightValue); // Either.right(4)
+Either.map(doubleIfEven)(leftValue); // Either.left(2)
 
-Either.mapLeft(doubleIfEven)(leftValue) // Either.left(4)
+Either.mapLeft(doubleIfEven)(leftValue); // Either.left(4)
 ```
 
 Eventually, there is also a bimap helper mapping the first function to the left branch, and the second function to the right branch
 
 ```typescript
 const evenErrorMessage = (n: number) => {
- if (n % 2 === 0) return `${n} is even but in Error State`;
- 
- return `${n} is odd and in Error State`;
+  if (n % 2 === 0) return `${n} is even but in Error State`;
+
+  return `${n} is odd and in Error State`;
 };
 
-const doubleOrError = Either.bimap(
-  evenErrorMessage,
-  doubleIfEven
-);
+const doubleOrError = Either.bimap(evenErrorMessage, doubleIfEven);
 
 const rightValue = Either.right(2);
 const leftValue = Either.left(3);
 
-doubleOrError(rightValue) // Either.right(4)
-doubleOrError(leftValue) // Either.left("3 is odd and in Error State")
-
-Either.mapLeft(doubleIfEven)(leftValue) // Either.left(4)
+doubleOrError(rightValue); // Either.right(4)
+doubleOrError(leftValue); // Either.left("3 is odd and in Error State")
 ```
-
