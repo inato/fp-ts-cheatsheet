@@ -1,6 +1,6 @@
 # FP-TS 101
 
-This aims to present how we use fpts at Inato.
+This aims to present how we use [fp-ts](https://gcanti.github.io/fp-ts/) at Inato.
 I have mainly compiled the work of my wonderful colleagues [@LaureRC](https://github.com/LaureRC) and [@punie](https://github.com/punie)
 
 1. [Data Structures](#data-structures)
