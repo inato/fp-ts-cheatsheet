@@ -510,24 +510,50 @@ If you want to use your data but return it unaltered to the rest of your pipelin
 
 ```typescript
 const doubleAndTellIfEven = (n: number): Either<NotEvenError, string> =>
-  n % 2 === 0 ? Either.right(`${2 * n} is an even number!`) : Either.left(notEvenError(n));
+  n % 2 === 0
+    ? Either.right(`${2 * n} is an even number!`)
+    : Either.left(notEvenError(n));
 
 const rightEvenValue = Either.right(2);
-const rightOddValue = Either.right(23;
+const rightOddValue = Either.right(3);
 
 pipe(
   rightEvenValue,
   Either.chainFirstW(doubleAndTellIfEven), // this goes right branch, but we drop the string returned and pass the initial value
   Either.getOrElse(() => 0) // here we get the original 2
-)
+);
 
 pipe(
-  rightEvenValue,
+  rightOddValue,
   Either.chainFirstW(doubleAndTellIfEven), // this goes left branch due to failed validation
   Either.getOrElse(() => 0) // here we get default 0
-)
+);
 ```
 
 ##### <a name="chaintaskeither"></a> Chaining TaskEither
 
-coming
+As mentioned, `TaskEither` works a lot like Either, so you can apply the same stuff as described above.
+
+One interesting behaviour, is you have a `TaskEither<value>` and you want to apply to your value a function returning an Either. You would have a `TaskEither<Either<value>>`.
+instead of then doing `fromEither` and `flatten`, you can use the `chainEitherK` (or `chainEitherKW` if error types are not equivalent) combinator, that does the same!
+
+```typescript
+
+const rightEvenValue = TaskEither.right(2);
+const rightOddValue = TaskEither.right(3);
+
+// note this function return an Either!
+const doubleIfEven = (n: number): Either<NotEvenError, number> =>
+  n % 2 === 0 ? Either.right(2 * n) : Either.left(notEvenError(n));
+
+pipe(
+  rightEvenValue
+  TaskEither.chainEitherKW(doubleIfEven) // this returns TaskEither(4)
+)
+
+pipe(
+  rightOddValue
+  TaskEither.chainEitherKW(doubleIfEven) // this returns TaskEither.left(NotEvenError)
+)
+
+```
