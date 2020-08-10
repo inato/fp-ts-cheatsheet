@@ -273,6 +273,7 @@ In a functional paradigm, you want to have small functions, and to call them one
   - [Flow](#flow)
 - [Working with data structures: Combinators](#combinators)
   - [Mapping](#map)
+  - [Chaining](#chain)
 
 ### <a name="chaining-basics"></a>Basics
 
@@ -417,3 +418,116 @@ doubleOrError(leftValue); // Either.left("3 is odd and in Error State")
 ##### <a name="maptaskeither"></a> Mapping TaskEither
 
 It's really exactly the same as mapping `Either` same functions available, same api.
+
+#### <a name="chain"></a> Chaining
+
+- [Chaining Options](#chainoption)
+- [Chaining Either](#chaineither)
+- [Chaining TaskEither](#chaintaskeither)
+
+So you have a context containing your value, `Option<number>`. But you want to apply to your value another function that can maybe return null, Eg: `maybeDouble: (number) => Option<number>`. If you apply `map` as seen above, you'll end up with an `Option<Option<number>>`, which is not easy to handle.
+
+You could use `flatten` to transform an `Option<Option>` (or an `Array<Array>` etc) but we will more likely use `chain`
+
+Chain will unwrap the value, apply the function and then combine the initial context with the new context. That's it.
+`chain` takes a function as parameter (the function transforming the value) and can then be applied to the value.
+
+```typescript
+const doubleIfEvenElseNone = (n: number) => n % 2 === 0
+  ? Option.some(2 * n)
+  : Option.none
+
+const optionEven = Option.some(2);
+const optionOdd = Option.some(3);
+
+Option.chain(doubleIfEvenElseNone)(optionEven) // Option.some(4)
+
+pipe(
+  optionOdd
+  Option.chain(doubleIfEvenElseNone)
+) // Option.none
+```
+
+Please note ase mentioned it is the same as
+
+```typescript
+pipe(
+  optionEven,
+  Option.map(doubleIfEvenElseNone), // Option.some(Option.some(4))
+  Option.flatten // Option.some(4)
+);
+
+Option.chain === flow(Option.map, Option.flatten);
+```
+
+According to your datastructure, chains behave differently.
+
+##### <a name="chainoption"></a> Chaining Options
+
+`Chain` behavior on Options is pretty simple. It applies the function to your value if the original is `some` else it return `none`. And that's about it!
+
+```typescript
+const someOption = Option.some(2);
+const someOddOption = Option.some(3);
+const noneOption = Option.none;
+
+Option.chain(doubleIfEvenElseNone)(someOption); // Option.some(4)
+Option.chain(doubleIfEvenElseNone)(someOddOption); // Option.none
+Option.chain(doubleIfEvenElseNone)(noneOption); // Option.none
+```
+
+##### <a name="chaineither"></a> Chaining Either
+
+Remeber `Either` is generally considered as "Everything went well" (right branch) vs "Something happened" (left branch).
+
+Let's say you have an either `Either<E, number>`, where `E` is the left type, and `number` the right brancch type
+So `chain` will only transform your data if you are in the right branch. Otherwise, it will return your Either as it was.
+To "flatten" your Either, there are two cases:
+
+1. you chain a function with the same left type (returning `Either<E, *>`). You can use the `chain` method and it will return an `Either<E, *>` (what is returned by your chained function)
+2. you chain a function with a different left type (returning `Either<D, *>`). To flatten your Either, you will have to combine both error types. You have to use the `chainW` method, where `W` means widen, as you extend the error type. It will return an `Either<E | D, *>`
+
+```typescript
+const initialError = (): InitialError => "This is an initial Error";
+const notEvenError = (num: number): NotEvenError => `${num} is not Even`;
+
+// Here we instanciate three Either<InitialError, number>
+const rightEvenValue = Either.right(2);
+const rightOddValue = Either.right(3);
+const leftValue = Either.left(InitialError);
+
+const doubleIfEven = (n: number): Either<NotEvenError, number> =>
+  n % 2 === 0 ? Either.right(2 * n) : Either.left(notEvenError(n));
+
+Either.chainW(doubleIfEven)(rightEvenValue); // Either.right(4)
+Either.chainW(doubleIfEven)(rightOddValue); // Either.left(NotEvenError)
+Either.chainW(doubleIfEven)(leftValue); // Either.left(InitialError)
+```
+
+We could not use `chain` in the above example as the returned Either type of the function was different from the input one.
+
+If you want to use your data but return it unaltered to the rest of your pipeline (like some kind of side effect), but still fail if something wrong happened, you can use the `chainFirst` (or `chainFirstW`) combinator!
+
+```typescript
+const doubleAndTellIfEven = (n: number): Either<NotEvenError, string> =>
+  n % 2 === 0 ? Either.right(`${2 * n} is an even number!`) : Either.left(notEvenError(n));
+
+const rightEvenValue = Either.right(2);
+const rightOddValue = Either.right(23;
+
+pipe(
+  rightEvenValue,
+  Either.chainFirstW(doubleAndTellIfEven), // this goes right branch, but we drop the string returned and pass the initial value
+  Either.getOrElse(() => 0) // here we get the original 2
+)
+
+pipe(
+  rightEvenValue,
+  Either.chainFirstW(doubleAndTellIfEven), // this goes left branch due to failed validation
+  Either.getOrElse(() => 0) // here we get default 0
+)
+```
+
+##### <a name="chaintaskeither"></a> Chaining TaskEither
+
+coming
