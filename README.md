@@ -5,6 +5,7 @@ I have mainly compiled the work of my wonderful colleagues [@LaureRC](https://gi
 
 1. [Data Structures](#data-structures)
 2. [Composing Functions](#chaining)
+3. [From one data structure to another](#flip-data-struct)
 
 ## <a name="data-structures"></a>Data Structures
 
@@ -429,7 +430,8 @@ So you have a context containing your value, `Option<number>`. But you want to a
 
 You could use `flatten` to transform an `Option<Option>` (or an `Array<Array>` etc) but we will more likely use `chain`
 
-Chain will unwrap the value, apply the function and then combine the initial context with the new context. That's it.
+Chain will unwrap the value, apply the function and then combine the initial context with the new context. That's it. What's implied is in order to combine, you ccan only chain functions that returns "roughly" the same context as the original one. IE, you `Either.chain` on functions returning Either.
+
 `chain` takes a function as parameter (the function transforming the value) and can then be applied to the value.
 
 ```typescript
@@ -542,7 +544,7 @@ instead of then doing `fromEither` and `flatten`, you can use the `chainEitherK`
 const rightEvenValue = TaskEither.right(2);
 const rightOddValue = TaskEither.right(3);
 
-// note this function return an Either!
+// note this function returns an Either!
 const doubleIfEven = (n: number): Either<NotEvenError, number> =>
   n % 2 === 0 ? Either.right(2 * n) : Either.left(notEvenError(n));
 
@@ -556,4 +558,78 @@ pipe(
   TaskEither.chainEitherKW(doubleIfEven) // this returns TaskEither.left(NotEvenError)
 )
 
+```
+
+## <a name="flip-data-struct"></a>From one data structure to another
+
+- [Flipping data structures](#flip)
+- [Applying functions returning another data type](#apply-return)
+
+### <a name="flip"></a>Flipping data structures
+
+One thing we really do often is "flip" two contexts we have. For example you make multiple queries and you end up with an `Array<Either<E, A>>` but you'd rather have an `Either<E, Array<A>>`.
+
+Or you map a function that may fail on an `Option` and end up having an `Option<Either>` but you want it the other way around.
+
+We can do it by using the `sequence` function of our data structures. When combining, please note an `Array<Either>` where some Either are right and other left, will turn into an `Either.left`
+
+```typescript
+import * as FPArray from "fp-ts/lib/Array";
+import * as Either from "fp-ts/lib/Either";
+import * as Option from "fp-ts/lib/Option";
+import * as TaskEither from "fp-ts/lib/TaskEither";
+
+const arrayOfEither = [
+  Either.right(42),
+  Either.left(SomeError),
+  Either.right(1337),
+];
+const eitherOfArray = FPArray.array.sequence(Either.either)(arrayOfEither);
+// eitherOfArray: Either<SomeError, Array<number>> == Either.left(SomeError)
+
+const arrayOrRight = [Either.right(42), Either.right(1337)];
+
+const eitherOfArray = FPArray.array.sequence(Either.either)(arrayOrRight);
+// eitherOfArray: Either<SomeError, Array<number>> == Either.right([42, 1337])
+
+const optionOfTaskEither = Option.some(TaskEither.right(42));
+const taskEitherOfOption = Option.option.sequence(TaskEither.taskEither)(
+  optionOfTaskEither
+);
+// taskEitherOfOption: TaskEither<SomeError, Option<number>> ==
+//   TaskEither.right(Option.some(42))
+```
+
+### <a name="apply-return"></a>Applying functions returning another data type
+
+Another useful use case (overlapping a bit the above one), is when you apply a function returning another datatype.
+You can simply use `map` of course, like you have an `Option` and wanna fetch something if the option is some, and you'll end up with an `Option<TaskEither>`
+
+```typescript
+const getUserPreferences = (userId: UserID) => TaskEither<UserNotFound, UserPreferences>
+const optionUserId = Option.some(userId)
+
+pipe(
+  optionUser,
+  Option.map(getUserPreferences) // this will give you an Option<TaskEither.right(userPreferences)>
+)
+```
+
+but maybe, you want it the other way around directly, because maybe you want to chain it with other TaskEither, or whatever reasons.
+You can use the `traverse` function for that, allows you to "traverse" your context with a function.
+
+traverse takes a first argument which is the datastructure that will be returned by the transformation function. And then two arguments, the first one being the data that will be transformed, and then the transformation function.
+
+```typescript
+const getUserPreferences = (userId: UserID) => TaskEither<UserNotFound, UserPreferences>
+const optionUserId = Option.some(userId)
+
+const result = Option.option.traverse(TaskEither.taskEither)(optionUserId, getUserPreferences)
+// 👆 this returns a TaskEither<UserNotFound, Option<UserPreferences>>
+
+
+pipe(
+  (optionUser, getUserPreferences),
+  Option.option.traverse(TaskEither.taskEither) // this is the same as above.
+)
 ```
