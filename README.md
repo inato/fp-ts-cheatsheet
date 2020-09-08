@@ -24,6 +24,9 @@ Here are the ones we use:
 - [TaskEither](#taskeither)
   - [Build TaskEither](#build-taskeither)
   - [Get Value from a TaskEither](#get-teither)
+- [Array and ReadonlyArray](#arrays)
+  - [Filter and map in one go](#filter-map)
+  - [Sorting with `Ord` instances](#sort)
 
 ### <a name="option"></a>Option
 
@@ -263,6 +266,122 @@ const ten = TaskEither.right(10); // this is a right branch of a taskEither
 const rightValue = await ten(); // we invoke ten, making it a Promise<Either> and then await the promise, so rightValut is an Either.right
 
 const returnedValue = Either.getOrElse(() => 0)(rightValue); // 10
+```
+
+### <a name="arrays"></a>Array and ReadonlyArray
+
+The `Array` and `ReadonlyArray` types from `fp-ts` extend their counterparts from native TypeScript so they can be used without having to do any conversion.
+
+Those modules provide equivalent functions as `Array.prototype.map` or `Array.prototype.filter` but with a more `fp-ts`, `pipe`-friendly API:
+
+```typescript
+const array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+pipe(
+  array,
+  Array.filter(isEven),
+  Array.map(square),
+);
+// => [0, 4, 16, 36, 64]
+```
+
+#### <a name="filter-map"></a>Filter and map in one go
+
+Sometimes, you want to map an array with a function that may fail to produce a value and then get rid of those failures. That is precisely what `Array.filterMap` does:
+
+```typescript
+// getById(id: Id): Option<Item>;
+const ids = [id1, id2, id3];
+const foundItems = pipe(
+  ids,
+  Array.filterMap(getById),
+);
+// => Array<Item>
+```
+
+#### <a name="sort"></a>Sorting with `Ord` instances
+
+Sorting strings:
+```typescript
+import * as Ord from 'fp-ts/lib/Ord';
+
+const strings = ['zyx', 'abc', 'klm'];
+
+const sortedStrings = pipe(
+  strings,
+  Array.sort(Ord.ordString),
+);
+// => ['abc', 'klm', 'zyx']
+```
+
+There are various instances of `Ord` for primitive types, available in `fp-ts`:
+- Strings: `ordString: Ord<string>`
+- Numbers: `ordString: Ord<number>`
+- Booleans: `ordString: Ord<boolean>`
+- Dates: `ordDate: Ord<Date>`
+
+The `Ord` module also provides us with ways to manipulate and combine them to create richer sorting algorithms!
+
+For example, to get an instance of `Ord` that will sort strings in reverse order, I can simply create and use it as such:
+
+```typescript
+const strings = ['zyx', 'abc', 'klm'];
+
+const reversedOrdString = Ord.getDualOrd(Ord.ordString);
+
+const sortedStrings = pipe(
+  strings,
+  Array.sort(reversedOrdString),
+);
+// => ['zyx', 'klm', 'abc']
+```
+
+Some higher level types like `Option<A>` also implement `Ord`! In this particular case, `none` is considered lower than `some` for example. So if you want to sort an array of `Option<number>`:
+
+```typescript
+const nums = [Option.some(1337), Option.none, Option.some(42)]
+
+const ordOptionalNumbers = Option.getOrd(Ord.ordNumber);
+
+const sortedNums = pipe(
+  nums,
+  Array.sort(ordOptionalNumbers),
+);
+// => [Option.none, Option.some(42), Option.some(1337)]
+```
+
+Likewise, if you have a more complex construct, like a `User`:
+
+```typescript
+interface User {
+  name: string;
+  age: Option<number>;
+}
+```
+
+You can build various instance of `Ord<User>` based on your need with `Ord.contramap`. This function is just a way of defining how to access the field that will be used for sorting.
+
+```typescript
+const byName = pipe(
+  Ord.ordString,
+  Ord.contramap((user: User) => user.name),
+);
+
+const byAge = pipe(
+  Option.getOrd(Ord.ordNumber),
+  Ord.contramap((user: User) => user.age),
+);
+```
+
+You can then tell `Array.sort` to use either one of these instances depending on your needs.
+
+Finally, if you need to combine those sorting conditions (first, sort by age, and then by name), you can use `Array.sortBy` which accepts an array of `Ord` instances, to be used in order:
+
+```typescript
+const sortedUsers = pipe(
+  users,
+  Array.sortBy([byAge, byName]),
+);
 ```
 
 ## <a name="chaining"></a>Composing Functions
