@@ -219,9 +219,11 @@ doubleOrZero(rightValue); // 20
 ### <a name="taskeither"></a>TaskEither
 
 A `Task` represents an asynchronous computation. You can view it as a `Promise`.
-So quite simply a `TaskEither` is an asychronous computation that can have two results (~ that can fail)
+So quite simply a `TaskEither` is an asychronous computation that can have two results (~ that can fail).
 
 A TaskEither is typed `TaskEither<A, B>` where `A` is the type of the left track and `B` the right track.
+
+**Note:** The type `TaskEither<E, A>` is **strictly** equivalent to `Task<Either<E, A>>`, and so there are no conversion functions between the two. All the functions from the `Task` module can thus be used on a `TaskEither` with the caveat that combinators such as `map` or `chain` give you access to the whole inner `Either`.
 
 #### <a name="build-taskeither"></a>Building a TaskEither
 
