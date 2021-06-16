@@ -318,8 +318,8 @@ const sortedStrings = pipe(
 
 There are various instances of `Ord` for primitive types, available in `fp-ts`:
 - Strings: `ordString: Ord<string>`
-- Numbers: `ordString: Ord<number>`
-- Booleans: `ordString: Ord<boolean>`
+- Numbers: `ordNumber: Ord<number>`
+- Booleans: `ordBoolean: Ord<boolean>`
 - Dates: `ordDate: Ord<Date>`
 
 The `Ord` module also provides us with ways to manipulate and combine them to create richer sorting algorithms!
