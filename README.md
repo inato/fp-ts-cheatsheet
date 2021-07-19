@@ -571,7 +571,7 @@ pipe(
 ) // Option.none
 ```
 
-Please note ase mentioned it is the same as
+Please note as mentioned it is the same as
 
 ```typescript
 pipe(
