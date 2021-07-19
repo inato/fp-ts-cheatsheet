@@ -551,7 +551,7 @@ So you have a context containing your value, `Option<number>`. But you want to a
 
 You could use `flatten` to transform an `Option<Option>` (or an `Array<Array>` etc) but we will more likely use `chain`
 
-Chain will unwrap the value, apply the function and then combine the initial context with the new context. That's it. What's implied is in order to combine, you ccan only chain functions that returns "roughly" the same context as the original one. IE, you `Either.chain` on functions returning Either.
+Chain will unwrap the value, apply the function and then combine the initial context with the new context. That's it. What's implied is in order to combine, you can only chain functions that returns "roughly" the same context as the original one. IE, you `Either.chain` on functions returning Either.
 
 `chain` takes a function as parameter (the function transforming the value) and can then be applied to the value.
 
