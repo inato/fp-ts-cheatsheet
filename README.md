@@ -201,15 +201,15 @@ Either.getOrElse(() => 0)(rightValue); // 10
 The `fold` destructor also takes two functions, the first one representing what to do on left branch, the second one what to do on right branch.
 
 ```typescript
-const leftValue = Either.left("Division by Zero!")
-const rightValue = Either.right(10)
+const leftValue = Either.left("Division by Zero!");
+const rightValue = Either.right(10);
 
 const doubleOrZero = Either.fold(
   (eitherError: string) => {
-    console.log(`The error was ${eitherError}`;
+    console.log(`The error was ${eitherError}`);
     return 0;
   }, // on left branch
-  (value: number) => 2 * value, // on right branch
+  (value: number) => 2 * value // on right branch
 );
 
 doubleOrZero(leftValue); // logs "The error was Division by Zero!" and returns 0
@@ -279,11 +279,7 @@ Those modules provide equivalent functions as `Array.prototype.map` or `Array.pr
 ```typescript
 const array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-pipe(
-  array,
-  Array.filter(isEven),
-  Array.map(square),
-);
+pipe(array, Array.filter(isEven), Array.map(square));
 // => [0, 4, 16, 36, 64]
 ```
 
@@ -294,29 +290,25 @@ Sometimes, you want to map an array with a function that may fail to produce a v
 ```typescript
 // getById(id: Id): Option<Item>;
 const ids = [id1, id2, id3];
-const foundItems = pipe(
-  ids,
-  Array.filterMap(getById),
-);
+const foundItems = pipe(ids, Array.filterMap(getById));
 // => Array<Item>
 ```
 
 #### <a name="sort"></a>Sorting with `Ord` instances
 
 Sorting strings:
+
 ```typescript
-import * as Ord from 'fp-ts/lib/Ord';
+import * as Ord from "fp-ts/lib/Ord";
 
-const strings = ['zyx', 'abc', 'klm'];
+const strings = ["zyx", "abc", "klm"];
 
-const sortedStrings = pipe(
-  strings,
-  Array.sort(Ord.ordString),
-);
+const sortedStrings = pipe(strings, Array.sort(Ord.ordString));
 // => ['abc', 'klm', 'zyx']
 ```
 
 There are various instances of `Ord` for primitive types, available in `fp-ts`:
+
 - Strings: `ordString: Ord<string>`
 - Numbers: `ordNumber: Ord<number>`
 - Booleans: `ordBoolean: Ord<boolean>`
@@ -327,28 +319,22 @@ The `Ord` module also provides us with ways to manipulate and combine them to cr
 For example, to get an instance of `Ord` that will sort strings in reverse order, I can simply create and use it as such:
 
 ```typescript
-const strings = ['zyx', 'abc', 'klm'];
+const strings = ["zyx", "abc", "klm"];
 
 const reversedOrdString = Ord.getDualOrd(Ord.ordString);
 
-const sortedStrings = pipe(
-  strings,
-  Array.sort(reversedOrdString),
-);
+const sortedStrings = pipe(strings, Array.sort(reversedOrdString));
 // => ['zyx', 'klm', 'abc']
 ```
 
 Some higher level types like `Option<A>` also implement `Ord`! In this particular case, `none` is considered lower than `some` for example. So if you want to sort an array of `Option<number>`:
 
 ```typescript
-const nums = [Option.some(1337), Option.none, Option.some(42)]
+const nums = [Option.some(1337), Option.none, Option.some(42)];
 
 const ordOptionalNumbers = Option.getOrd(Ord.ordNumber);
 
-const sortedNums = pipe(
-  nums,
-  Array.sort(ordOptionalNumbers),
-);
+const sortedNums = pipe(nums, Array.sort(ordOptionalNumbers));
 // => [Option.none, Option.some(42), Option.some(1337)]
 ```
 
@@ -366,12 +352,12 @@ You can build various instance of `Ord<User>` based on your need with `Ord.contr
 ```typescript
 const byName = pipe(
   Ord.ordString,
-  Ord.contramap((user: User) => user.name),
+  Ord.contramap((user: User) => user.name)
 );
 
 const byAge = pipe(
   Option.getOrd(Ord.ordNumber),
-  Ord.contramap((user: User) => user.age),
+  Ord.contramap((user: User) => user.age)
 );
 ```
 
@@ -380,10 +366,7 @@ You can then tell `Array.sort` to use either one of these instances depending on
 Finally, if you need to combine those sorting conditions (first, sort by age, and then by name), you can use `Array.sortBy` which accepts an array of `Ord` instances, to be used in order:
 
 ```typescript
-const sortedUsers = pipe(
-  users,
-  Array.sortBy([byAge, byName]),
-);
+const sortedUsers = pipe(users, Array.sortBy([byAge, byName]));
 ```
 
 ## <a name="chaining"></a>Composing Functions
