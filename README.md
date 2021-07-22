@@ -6,6 +6,7 @@ I have mainly compiled the work of my wonderful colleagues [@LaureRC](https://gi
 1. [Data Structures](#data-structures)
 2. [Composing Functions](#chaining)
 3. [From one data structure to another](#flip-data-struct)
+4. [Reader](#reader)
 
 ## <a name="data-structures"></a>Data Structures
 
@@ -737,3 +738,54 @@ pipe(
   Option.option.traverse(TaskEither.taskEither) // this is the same as above.
 )
 ```
+
+## <a name="reader"></a>Reader
+
+If you already had to carry dependencies throught out multiple functions, you will quickly understand the value of `Reader`.
+You can see the definition given by Giulio Canti [here](https://dev.to/gcanti/getting-started-with-fp-ts-reader-1ie5), and basically `Reader<R,A>` represents a function `(r: R) => A` where `R` will be your dependencies, and A the result.
+
+Let's take an example:
+
+```typescript
+const foo = ({
+  firstId,
+  secondId,
+  eventData,
+  firstDependency,
+  secondDependency,
+}): TaskEither<Error, Value> =>
+  pipe(
+    firstDependency.getById(firstId),
+    TaskEither.chain(() => secondDependency.sendEvent({ secondId, eventData }))
+  );
+```
+
+Using `Reader`, you could write it this way:
+
+```typescript
+const foo = ({
+  firstId,
+  secondId,
+  eventData,
+}): ReaderTaskEither<Deps, Error, Value> =>
+  pipe(
+    getById(firstId),
+    ReaderTaskEither.chain(() => sendEvent({ secondId, eventData }))
+  );
+
+// with:
+const getById = (firstId) =>
+  pipe(
+    Reader.ask<Deps>(),
+    Reader.map(({ firstDependency }) => firstDependency.getById(firstId))
+  );
+const sendEvent = ({ secondId, eventData }) =>
+  pipe(
+    Reader.ask<Deps>(),
+    Reader.map(({ secondDependency }) =>
+      secondDependency.sendEvent({ secondId, eventData })
+    )
+  );
+```
+
+You need to adapt some methods to be able to properly use the `Reader` pattern, but once it's done, you won't need to carry your dependencies from a method to another as those will only be seen where they are needed.
