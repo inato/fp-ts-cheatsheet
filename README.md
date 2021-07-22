@@ -759,6 +759,9 @@ const foo = ({
     firstDependency.getById(firstId),
     TaskEither.chain(() => secondDependency.sendEvent({ secondId, eventData }))
   );
+
+// To call this foo method you'll write:
+foo({ firstId, secondId, eventData, firstDependency, secondDependency });
 ```
 
 Using `Reader`, you could write it this way:
@@ -795,6 +798,9 @@ const sendEvent = ({ secondId, eventData }) =>
       secondDependency.sendEvent({ secondId, eventData })
     )
   );
+
+// To call this foo method, you'll write:
+foo({ firstId, secondId, eventData })({ firstDependency, secondDependency });
 ```
 
 You need to adapt some methods to be able to properly use the `Reader` pattern, but once it's done, you won't need to carry your dependencies from a method to another as those will only be seen where they are needed.
