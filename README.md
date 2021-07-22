@@ -7,6 +7,7 @@ I have mainly compiled the work of my wonderful colleagues [@LaureRC](https://gi
 2. [Composing Functions](#chaining)
 3. [From one data structure to another](#flip-data-struct)
 4. [Reader](#reader)
+5. [Some specific examples](#specific-examples)
 
 ## <a name="data-structures"></a>Data Structures
 
@@ -789,3 +790,52 @@ const sendEvent = ({ secondId, eventData }) =>
 ```
 
 You need to adapt some methods to be able to properly use the `Reader` pattern, but once it's done, you won't need to carry your dependencies from a method to another as those will only be seen where they are needed.
+
+## <a name="specific-examples"></a> Some specific examples
+
+### <a name="call-in-parallel"></a> Call in parallel
+
+At some point, you might need to call methods in parallel, for instance because you need to send data to multiple external services and you don't want to decrease the performance of your use case. Here is an example that shows you how to call two `ReaderTaskEither` in parallel :
+
+```typescript
+import * as RTE from "fp-ts/ReaderTaskEither";
+import { pipe } from "fp-ts/function";
+
+declare const foo: RTE.ReaderTaskEither<R1, E1, A1>;
+declare const bar: RTE.ReaderTaskEither<R2, E2, A2>;
+
+pipe(
+  RTE.Do,
+  RTE.bindW("foo", () => foo),
+  RTE.apSW("bar", bar)
+  // this returns RTE.ReaderTaskEither<R1 & R2, E1 | E2, {readonly foo: A1; readonly bar: A2}>
+);
+```
+
+In the specific case of two `TaskEither` having the same error but not the same result, you can also do the following :
+
+```typescript
+import * as TaskEither from "fp-ts/TaskEither";
+import { pipe } from "fp-ts/function";
+import { sequenceT } from "fp-ts/lib/Apply";
+
+declare const foo: TaskEither.TaskEither<E, A1>;
+declare const bar: TaskEither.TaskEither<E, A2>;
+
+pipe(sequenceT(TaskEither.ApplicativePar)(foo, bar));
+// this returns TaskEither.TaskEither<E, [A1, A2]>
+```
+
+And in the specific case of two `TaskEither` having the same error and result, you can do the following :
+
+```typescript
+import * as ReadonlyArray from "fp-ts/ReadonlyArray";
+import * as TaskEither from "fp-ts/TaskEither";
+import { pipe } from "fp-ts/function";
+
+declare const foo: TaskEither.TaskEither<E, A>;
+declare const bar: TaskEither.TaskEither<E, A>;
+
+pipe([foo, bar], ReadonlyArray.sequence(TaskEither.ApplicativePar));
+// this returns TaskEither.TaskEither<E, readonly A[]>
+```
