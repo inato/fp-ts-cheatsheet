@@ -754,7 +754,7 @@ const foo = ({
   eventData,
   firstDependency,
   secondDependency,
-}): TaskEither<Error, Value> =>
+}): TaskEither<E, A> =>
   pipe(
     firstDependency.getById(firstId),
     TaskEither.chain(() => secondDependency.sendEvent({ secondId, eventData }))
@@ -767,19 +767,18 @@ foo({ firstId, secondId, eventData, firstDependency, secondDependency });
 Using `Reader`, you could write it this way:
 
 ```typescript
-interface Deps1 {
-  firstDependency: D1;
+interface R1 {
+  firstDependency: Dep1;
 }
-interface Deps2 {
-  secondDependency: D2;
+interface R2 {
+  secondDependency: Dep2;
 }
-interface Deps extends Deps1, Deps2 {}
 
 const foo = ({
   firstId,
   secondId,
   eventData,
-}): ReaderTaskEither<Deps, Error, Value> =>
+}): ReaderTaskEither<R1 & R2, E, A> =>
   pipe(
     getById(firstId),
     ReaderTaskEither.chain(() => sendEvent({ secondId, eventData }))
@@ -788,12 +787,12 @@ const foo = ({
 // with:
 const getById = (firstId) =>
   pipe(
-    Reader.ask<Deps1>(),
+    Reader.ask<R1>(),
     Reader.map(({ firstDependency }) => firstDependency.getById(firstId))
   );
 const sendEvent = ({ secondId, eventData }) =>
   pipe(
-    Reader.ask<Deps2>(),
+    Reader.ask<R2>(),
     Reader.map(({ secondDependency }) =>
       secondDependency.sendEvent({ secondId, eventData })
     )
