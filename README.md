@@ -764,6 +764,14 @@ const foo = ({
 Using `Reader`, you could write it this way:
 
 ```typescript
+interface Deps1 {
+  firstDependency: D1;
+}
+interface Deps2 {
+  secondDependency: D2;
+}
+interface Deps extends Deps1, Deps2 {}
+
 const foo = ({
   firstId,
   secondId,
@@ -777,12 +785,12 @@ const foo = ({
 // with:
 const getById = (firstId) =>
   pipe(
-    Reader.ask<Deps>(),
+    Reader.ask<Deps1>(),
     Reader.map(({ firstDependency }) => firstDependency.getById(firstId))
   );
 const sendEvent = ({ secondId, eventData }) =>
   pipe(
-    Reader.ask<Deps>(),
+    Reader.ask<Deps2>(),
     Reader.map(({ secondDependency }) =>
       secondDependency.sendEvent({ secondId, eventData })
     )
