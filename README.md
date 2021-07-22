@@ -814,36 +814,8 @@ declare const bar: RTE.ReaderTaskEither<R2, E2, A2>;
 
 pipe(
   RTE.Do,
-  RTE.bindW("foo", () => foo),
+  RTE.apS("foo", foo),
   RTE.apSW("bar", bar)
   // this returns RTE.ReaderTaskEither<R1 & R2, E1 | E2, {readonly foo: A1; readonly bar: A2}>
 );
-```
-
-In the specific case of two `TaskEither` having the same error but not the same result, you can also do the following :
-
-```typescript
-import * as TaskEither from "fp-ts/TaskEither";
-import { pipe } from "fp-ts/function";
-import { sequenceT } from "fp-ts/lib/Apply";
-
-declare const foo: TaskEither.TaskEither<E, A1>;
-declare const bar: TaskEither.TaskEither<E, A2>;
-
-pipe(sequenceT(TaskEither.ApplicativePar)(foo, bar));
-// this returns TaskEither.TaskEither<E, [A1, A2]>
-```
-
-And in the specific case of two `TaskEither` having the same error and result, you can do the following :
-
-```typescript
-import * as ReadonlyArray from "fp-ts/ReadonlyArray";
-import * as TaskEither from "fp-ts/TaskEither";
-import { pipe } from "fp-ts/function";
-
-declare const foo: TaskEither.TaskEither<E, A>;
-declare const bar: TaskEither.TaskEither<E, A>;
-
-pipe([foo, bar], ReadonlyArray.sequence(TaskEither.ApplicativePar));
-// this returns TaskEither.TaskEither<E, readonly A[]>
 ```
