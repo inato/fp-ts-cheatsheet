@@ -489,7 +489,7 @@ Option.map(doubleIfEven)(noneOption); // Option.none
 
 ##### <a name="mapeither"></a> Mapping Either
 
-Remeber `Either` is generally considered as "Everything went well" (right branch) vs "Something happened" (left branch).
+Remember `Either` is generally considered as "Everything went well" (right branch) vs "Something happened" (left branch).
 So `map` will only transform your data if you are in the right branch.
 
 If you want to map on the left branch, you can use `mapLeft`!
