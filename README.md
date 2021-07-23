@@ -6,6 +6,8 @@ I have mainly compiled the work of my wonderful colleagues [@LaureRC](https://gi
 1. [Data Structures](#data-structures)
 2. [Composing Functions](#chaining)
 3. [From one data structure to another](#flip-data-struct)
+4. [Reader](#reader)
+5. [Some specific examples](#specific-examples)
 
 ## <a name="data-structures"></a>Data Structures
 
@@ -487,7 +489,7 @@ Option.map(doubleIfEven)(noneOption); // Option.none
 
 ##### <a name="mapeither"></a> Mapping Either
 
-Remeber `Either` is generally considered as "Everything went well" (right branch) vs "Something happened" (left branch).
+Remember `Either` is generally considered as "Everything went well" (right branch) vs "Something happened" (left branch).
 So `map` will only transform your data if you are in the right branch.
 
 If you want to map on the left branch, you can use `mapLeft`!
@@ -736,4 +738,89 @@ pipe(
   (optionUser, getUserPreferences),
   Option.option.traverse(TaskEither.taskEither) // this is the same as above.
 )
+```
+
+## <a name="reader"></a>Reader
+
+If you already had to carry dependencies throught out multiple functions, you will quickly understand the value of `Reader`.
+You can see the definition given by Giulio Canti [here](https://dev.to/gcanti/getting-started-with-fp-ts-reader-1ie5), and basically `Reader<R,A>` represents a function `(r: R) => A` where `R` will be your dependencies, and A the result.
+
+Let's take an example:
+
+```typescript
+const foo = ({
+  firstId,
+  secondId,
+  eventData,
+  firstDependency,
+  secondDependency,
+}): TaskEither<E, A> =>
+  pipe(
+    firstDependency.getById(firstId),
+    TaskEither.chain(() => secondDependency.sendEvent({ secondId, eventData }))
+  );
+
+// To call this foo method you'll write:
+foo({ firstId, secondId, eventData, firstDependency, secondDependency });
+```
+
+Using `Reader`, you could write it this way:
+
+```typescript
+interface R1 {
+  firstDependency: Dep1;
+}
+interface R2 {
+  secondDependency: Dep2;
+}
+
+const foo = ({
+  firstId,
+  secondId,
+  eventData,
+}): ReaderTaskEither<R1 & R2, E, A> =>
+  pipe(
+    getById(firstId),
+    ReaderTaskEither.chain(() => sendEvent({ secondId, eventData }))
+  );
+
+// with:
+const getById = (firstId) =>
+  pipe(
+    Reader.ask<R1>(),
+    Reader.map(({ firstDependency }) => firstDependency.getById(firstId))
+  );
+const sendEvent = ({ secondId, eventData }) =>
+  pipe(
+    Reader.ask<R2>(),
+    Reader.map(({ secondDependency }) =>
+      secondDependency.sendEvent({ secondId, eventData })
+    )
+  );
+
+// To call this foo method, you'll write:
+foo({ firstId, secondId, eventData })({ firstDependency, secondDependency });
+```
+
+You need to adapt some methods to be able to properly use the `Reader` pattern, but once it's done, you won't need to carry your dependencies from a method to another as those will only be seen where they are needed.
+
+## <a name="specific-examples"></a> Some specific examples
+
+### <a name="call-in-parallel"></a> Call in parallel
+
+At some point, you might need to call methods in parallel, for instance because you need to send data to multiple external services and you don't want to decrease the performance of your use case. Here is an example that shows you how to call two `ReaderTaskEither` in parallel :
+
+```typescript
+import * as RTE from "fp-ts/ReaderTaskEither";
+import { pipe } from "fp-ts/function";
+
+declare const foo: RTE.ReaderTaskEither<R1, E1, A1>;
+declare const bar: RTE.ReaderTaskEither<R2, E2, A2>;
+
+pipe(
+  RTE.Do,
+  RTE.apS("foo", foo),
+  RTE.apSW("bar", bar)
+  // this returns RTE.ReaderTaskEither<R1 & R2, E1 | E2, {readonly foo: A1; readonly bar: A2}>
+);
 ```
