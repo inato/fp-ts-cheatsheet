@@ -757,10 +757,10 @@ const result = ReadonlyArray.traverse(TaskEither.ApplicativeSeq)(
 
 Not that if in the above example any of `TaskEither` returned by `getUserPreferences` is a `Left`, the `result` will also be a `Left`.
 
-What id you need to get all the values returned by `getUserPreferences` that are `Right` though?
+What if you need to get all the values returned by `getUserPreferences` that are `Right` though?
 
 ```typescript
-import { pipe, identity } from "fp-ts/function";
+import { pipe } from "fp-ts/function";
 
 // getUserPreferences and userIds are as in the above example
 
@@ -769,13 +769,13 @@ const result = pipe(
   // notice how in the following line we use Task instead of TaskEither
   ReadonlyArray.traverse(Task.ApplicativeSeq)(getUserPreferences), // this gives a Task<Either[]>
   // next two lines allow to get all values from Eithers that are Right
-  Task.map(ReadonlyArray.partitionMap(identity)),
+  Task.map(ReadonlyArray.separate),
   Task.map(({ right }) => right)
 );
 // result is Task<UserPreferences[]>
 ```
 
-You can futher explore the above code by pasting [this snippet](https://pastebin.com/ytzpz87k) in a [code sandbox](https://codesandbox.io).
+You can futher explore the above code by pasting [this snippet](https://pastebin.com/39psQsaN) in a [code sandbox](https://codesandbox.io).
 
 ## <a name="reader"></a>Reader
 
