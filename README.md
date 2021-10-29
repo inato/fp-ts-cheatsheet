@@ -670,6 +670,7 @@ pipe(
 
 - [Flipping data structures](#flip)
 - [Applying functions returning another data type](#apply-return)
+- [Applying a function to an array of elements](#apply-to-array)
 
 ### <a name="flip"></a>Flipping data structures
 
@@ -739,6 +740,42 @@ pipe(
   Option.option.traverse(TaskEither.taskEither) // this is the same as above.
 )
 ```
+
+## <a name="apply-to-array"></a>Applying a function to an array of elements
+
+Here is another example of using `traverse`:
+
+```typescript
+const getUserPreferences = (userId: UserID) => TaskEither<UserNotFound, UserPreferences>
+const userIds = [userId, anotherUserId, thirdUserId];
+
+const result = ReadonlyArray.traverse(TaskEither.ApplicativeSeq)(
+    getUserPreferences
+  )(userIds)
+// result is TaskEither<string, UserPreferences[]>
+```
+
+Not that if in the above example any of `TaskEither` returned by `getUserPreferences` is a `Left`, the `result` will also be a `Left`.
+
+What id you need to get all the values returned by `getUserPreferences` that are `Right` though?
+
+```typescript
+import { pipe, identity } from "fp-ts/function";
+
+// getUserPreferences and userIds are as in the above example
+
+const result = pipe(
+  validAndInvalidUserIds,
+  // notice how in the following line we use Task instead of TaskEither
+  ReadonlyArray.traverse(Task.ApplicativeSeq)(getUserPreferences), // this gives a Task<Either[]>
+  // next two lines allow to get all values from Eithers that are Right
+  Task.map(ReadonlyArray.partitionMap(identity)),
+  Task.map(({ right }) => right)
+);
+// result is Task<UserPreferences[]>
+```
+
+You can futher explore the above code by pasting [this snippet](https://pastebin.com/ytzpz87k) in a [code sandbox](https://codesandbox.io).
 
 ## <a name="reader"></a>Reader
 
