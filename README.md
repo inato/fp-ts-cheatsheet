@@ -782,6 +782,12 @@ const result = pipe(
 // result is Task<UserPreferences[]>
 ```
 
+Note that the following functions have the same logic:
+```
+Task.traverseArray === ReadonlyArray.traverse(Task.ApplicativePar)
+TaskEither.traverseArray === ReadonlyArray.traverse(TaskEither.ApplicativePar)
+```
+
 You can futher explore the above code by pasting [this snippet](https://pastebin.com/39psQsaN) in a [code sandbox](https://codesandbox.io).
 
 ## <a name="reader"></a>Reader
