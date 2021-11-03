@@ -745,7 +745,7 @@ pipe(
 
 ## <a name="apply-to-array"></a>Applying a function to an array of elements
 
-Here is another example of using `traverse`:
+Here is another example of using `traverse`-like method:
 
 ```typescript
 import { TaskEither } from "fp-ts/TaskEither";
@@ -754,12 +754,10 @@ import { readonlyArray, taskEither } from "fp-ts";
 const getUserPreferences: (userId: UserID) => TaskEither<UserNotFound, UserPreferences> = /* ... */;
 const userIds = [userId, anotherUserId, thirdUserId];
 
-const result = pipe(
-  userIds,
-  readonlyArray.traverse(taskEither.ApplicativeSeq)(
-    getUserPreferences
-  )
-);
+const result = taskEither.traverseArray(
+  getUserPreferences
+)(userIds);
+
 // result is TaskEither<string, UserPreferences[]>
 ```
 
@@ -776,7 +774,7 @@ import { pipe } from "fp-ts/function";
 const result = pipe(
   validAndInvalidUserIds,
   // notice how in the following line we use Task instead of TaskEither
-  readonlyArray.traverse(task.ApplicativeSeq)(getUserPreferences), // this gives a Task<Either[]>
+  task.traverseArray(getUserPreferences), // this gives a Task<Either[]>
   // next two lines allow to get all values from Eithers that are Right
   task.map(readonlyArray.separate),
   task.map(({ right }) => right)
