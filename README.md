@@ -409,7 +409,7 @@ Remark: as you pass **one** value through your pipe, that's why `fp-ts` function
 ```typescript
 const myOption = pipe(
   "value",
-  Either.fromNullable('Given value was null),
+  Either.fromNullable('Given value was null'),
   Option.fromEither
 ); // myOption = Option.Some("value")
 ```
