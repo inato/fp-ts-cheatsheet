@@ -150,7 +150,7 @@ You have also a `fromNullable` helper. If the value is `null` or `undefined` you
 
 ```typescript
 const leftValue = Either.fromNullable("value was nullish")(null); // Either.left('value was nullish')
-const optionValue = Either.fromNullable("value was nullish")("value"); // Either.right("value")
+const rightValue = Either.fromNullable("value was nullish")("value"); // Either.right("value")
 ```
 
 You can also pass you own validation function to build an `Either` with the fromPredicate helper. Here it is a bit more complicated.
