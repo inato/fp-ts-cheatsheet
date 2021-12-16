@@ -551,7 +551,7 @@ const optionOdd = Option.some(3);
 Option.chain(doubleIfEvenElseNone)(optionEven) // Option.some(4)
 
 pipe(
-  optionOdd
+  optionOdd,
   Option.chain(doubleIfEvenElseNone)
 ) // Option.none
 ```
