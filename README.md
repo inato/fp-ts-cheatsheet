@@ -782,13 +782,11 @@ const result = pipe(
 ```
 
 Note that the following functions have the same logic:
-```
-Task.traverseArray === ReadonlyArray.traverse(Task.ApplicativePar)
-TaskEither.traverseArray === ReadonlyArray.traverse(TaskEither.ApplicativePar)
 
-Task.traverseSeqArray === ReadonlyArray.traverse(Task.ApplicativeSeq)
-TaskEither.traverseSeqArray === ReadonlyArray.traverse(TaskEither.ApplicativeSeq)
-```
+* `task.traverseArray` and `readonlyArray.traverse(Task.ApplicativePar)`
+* `taskEither.traverseArray` and `readonlyArray.traverse(TaskEither.ApplicativePar)`
+* `task.traverseSeqArray` and `readonlyArray.traverse(Task.ApplicativeSeq)`
+* `taskEither.traverseSeqArray` and `readonlyArray.traverse(TaskEither.ApplicativeSeq)`
 
 You can futher explore the above code by pasting [this snippet](https://pastebin.com/39psQsaN) in a [code sandbox](https://codesandbox.io).
 
