@@ -42,15 +42,15 @@ You can think of an option as something that can be null or undefined.
 The easiest way to build an `Option` is to use the some or none constructor that returns a value encapsulated in an `Option`.
 
 ```typescript
-const noneValue = Option.none;
-const someValue = Option.some("value");
+const noneValue = option.none;
+const someValue = option.some("value");
 ```
 
 If you have a value and want to check it you can use `fromNullable`. If the value is `null | undefined` you get a `Option.None` otherwise you get the value wrapped in an `Option` data structure.
 
 ```typescript
-const noneValue = Option.fromNullable(null); // Option.None
-const optionValue = Option.fromNullable("value"); // Option.Some("value")
+const noneValue = option.fromNullable(null); // Option.None
+const optionValue = option.fromNullable("value"); // Option.Some("value")
 ```
 
 You can also pass you own validation function to build an `Option` with the fromPredicate helper:
@@ -58,8 +58,8 @@ You can also pass you own validation function to build an `Option` with the from
 ```typescript
 const isEven = (number) => number % 2 === 0;
 
-const noneValue = Option.fromPredicate(isEven)(3); // Option.None
-const optionValue = Option.fromPredicate(isEven)(4); // Option.Some(4)
+const noneValue = option.fromPredicate(isEven)(3); // Option.None
+const optionValue = option.fromPredicate(isEven)(4); // Option.Some(4)
 ```
 
 ##### From another data structure
@@ -67,11 +67,11 @@ const optionValue = Option.fromPredicate(isEven)(4); // Option.Some(4)
 You can build an `Option` from an `Either`. If the Either is in its left state (~ error) you get an `Option.None`, otherwise you get an `Option.Some` of the value in the Either
 
 ```typescript
-const leftEither = Either.left("whatever");
-const rightEither = Either.right("value");
+const leftEither = either.left("whatever");
+const rightEither = either.right("value");
 
-const noneValue = Option.fromEither(leftEither); // Option.None
-const optionValue = Option.fromNullable(rightEither); // Option.Some("value")
+const noneValue = option.fromEither(leftEither); // option.None
+const optionValue = option.fromNullable(rightEither); // option.Some("value")
 ```
 
 #### <a name="get-options"></a>Get Value from an Option
@@ -83,13 +83,13 @@ When your value is encapsulated into an Option, you sometimes want to retrieve i
 Easiest way is to use the `toNullable` or `toUndefined` helpers. They are pretty straightforward, if your Option contains a value, you get it, otherwise you get null or undefined:
 
 ```typescript
-const noneValue = Option.none;
-const someValue = Option.of("value");
+const noneValue = option.none;
+const someValue = option.of("value");
 
-Option.toUndefined(noneValue); // undefined
-Option.toUndefined(someValue); // "value"
-Option.toNullable(noneValue); // null
-Option.toNullable(someValue); // "value"
+option.toUndefined(noneValue); // undefined
+option.toUndefined(someValue); // "value"
+option.toNullable(noneValue); // null
+option.toNullable(someValue); // "value"
 ```
 
 ##### Get the value with a default
@@ -99,13 +99,13 @@ You can use one of the following helper to retrieve your value or have a default
 `getOrElse` takes a function as parameter that returns the default value for `none`. Please note the default value must have the same type as your initial Option. Eg: `getOrElse` on an `Option<number>` must return a `number`. If you want to return another type, you can use `getOrElseW`.
 
 ```typescript
-const noneValue = Option.none;
-const someValue = Option.of("value");
+const noneValue = option.none;
+const someValue = option.of("value");
 
-Option.getOrElse(() => "default")(noneValue); // "default"
-Option.getOrElse(() => "default")(someValue); // "value"
+option.getOrElse(() => "default")(noneValue); // "default"
+option.getOrElse(() => "default")(someValue); // "value"
 
-Option.getOrElseW(() => 3)(noneValue); // 3
+option.getOrElseW(() => 3)(noneValue); // 3
 ```
 
 ##### Compute and get the value
@@ -114,10 +114,10 @@ The last way to get your value is `fold` and it allows you to compute before ret
 it takes a two functions, the first one is executed if your Option is `none`, the second one if your `Option` contains some value.
 
 ```typescript
-const noneValue = Option.none;
-const someValue = Option.of(10);
+const noneValue = option.none;
+const someValue = option.of(10);
 
-const doubleOrZero = Option.fold(
+const doubleOrZero = option.fold(
   () => 0, // this is called when your Option is none
   (n: number) => 2 * n // called when your Option has some value
 );
@@ -142,15 +142,15 @@ An Either is typed `Either<E, A>` where `E` is the type of the left track (E for
 The easiest way to build an `Either` is to use the right or left constructor that returns a value encapsulated as a right or left `Either`.
 
 ```typescript
-const leftValue = Either.left("value"); // -> you are on the left branch
-const rightValue = Either.right("value"); // -> you are on the right branch
+const leftValue = either.left("value"); // -> you are on the left branch
+const rightValue = either.right("value"); // -> you are on the right branch
 ```
 
 You have also a `fromNullable` helper. If the value is `null` or `undefined` you need to provide your Either what to put in the left track, otherwise it will put your value in the right track.
 
 ```typescript
-const leftValue = Either.fromNullable("value was nullish")(null); // Either.left('value was nullish')
-const rightValue = Either.fromNullable("value was nullish")("value"); // Either.right("value")
+const leftValue = either.fromNullable("value was nullish")(null); // either.left('value was nullish')
+const rightValue = either.fromNullable("value was nullish")("value"); // either.right("value")
 ```
 
 You can also pass you own validation function to build an `Either` with the fromPredicate helper. Here it is a bit more complicated.
@@ -160,7 +160,7 @@ You have to first pass a function checking your value is correct (should I go ri
 type EvenNumber = number;
 const isEven = (num: number) => num % 2 === 0;
 const isEvenTypeGuard = (num: number): num is EvenNumber => num % 2 === 0;
-const eitherBuilder = Either.fromPredicate(
+const eitherBuilder = either.fromPredicate(
   isEven, // here we could use isEvenTypeGuard to infer the number type and have an Either<E, EvenNumber>
   (number) => `${number} is an odd number`
 );
@@ -175,11 +175,11 @@ const rightValue = eitherBuilder(4); // Either.right(4)
 You can build an `Either` from an `Option`. It works exactly as the `fromNullable` as we've seen an Option could represent a nullable value.
 
 ```typescript
-const noneValue = Option.none;
-const someValue = Option.some("value");
+const noneValue = option.none;
+const someValue = option.some("value");
 
-const left = Either.fromOption("value was nullish")(noneValue); // Either.left('value was nullish')
-const right = Either.fromOption("value was nullish")(someValue); // Either.right('value')
+const left = either.fromOption("value was nullish")(noneValue); // either.left('value was nullish')
+const right = either.fromOption("value was nullish")(someValue); // either.right('value')
 ```
 
 #### <a name="get-either"></a>Get Value from an Either
@@ -191,11 +191,11 @@ This part looks a lot like the `Option` part. There are two `Either` "destructor
 The `getOrElse` destructor and its `getOrElseW` version work exactly as the one from `Option`. You have to pass it what to return if you are in the left branch.
 
 ```typescript
-const leftValue = Either.left("Division by Zero!");
-const rightValue = Either.right(10);
+const leftValue = either.left("Division by Zero!");
+const rightValue = either.right(10);
 
-Either.getOrElse(() => 0)(leftValue); // 0
-Either.getOrElse(() => 0)(rightValue); // 10
+either.getOrElse(() => 0)(leftValue); // 0
+either.getOrElse(() => 0)(rightValue); // 10
 ```
 
 ##### Compute left and right branches
@@ -203,10 +203,10 @@ Either.getOrElse(() => 0)(rightValue); // 10
 The `fold` destructor also takes two functions, the first one representing what to do on left branch, the second one what to do on right branch.
 
 ```typescript
-const leftValue = Either.left("Division by Zero!");
-const rightValue = Either.right(10);
+const leftValue = either.left("Division by Zero!");
+const rightValue = either.right(10);
 
-const doubleOrZero = Either.fold(
+const doubleOrZero = either.fold(
   (eitherError: string) => {
     console.log(`The error was ${eitherError}`);
     return 0;
@@ -234,9 +234,8 @@ A TaskEither is typed `TaskEither<A, B>` where `A` is the type of the left track
 You can build a TaskEither as you would build an Either: `left`, `right`, `fromNullable`, `fromPredicate`.
 
 ```typescript
-  const leftValue = TaskEither.left("value");
-  const rightValue = TaskEither.right("value");
-
+  const leftValue = taskEither.left("value");
+  const rightValue = taskEither.right("value");
   ...
 ```
 
@@ -252,13 +251,13 @@ const asyncIsEven = async (a: number) => {
   return a;
 };
 const buildTaskEither = (number: number) =>
-  TaskEither.tryCatch(
+  taskEither.tryCatch(
     () => asyncIsEven(number),
     () => `${number} is odd`
   );
 
-const rightValue = buildTaskEither(4); // TaskEither.right(4)
-const leftValue = buildTaskEither(3); // TaskEither.left('3 is odd')
+const rightValue = buildTaskEither(4); // taskEither.right(4)
+const leftValue = buildTaskEither(3); // taskEither.left('3 is odd')
 ```
 
 #### <a name="get-teither"></a>Get Value from a TaskEither
@@ -266,10 +265,10 @@ const leftValue = buildTaskEither(3); // TaskEither.left('3 is odd')
 In fp-ts, if you invoke a `TaskEither`, you get a `Promise<Either>` so most of the time, what we do is we invoke our TaskEither and then use the aforementioned methods on the `Either` to retrieve its value.
 
 ```typescript
-const ten = TaskEither.right(10); // this is a right branch of a taskEither
+const ten = taskEither.right(10); // this is a right branch of a taskEither
 const rightValue = await ten(); // we invoke ten, making it a Promise<Either> and then await the promise, so rightValut is an Either.right
 
-const returnedValue = Either.getOrElse(() => 0)(rightValue); // 10
+const returnedValue = either.getOrElse(() => 0)(rightValue); // 10
 ```
 
 ### <a name="arrays"></a>Array and ReadonlyArray
@@ -279,20 +278,21 @@ The `Array` and `ReadonlyArray` types from `fp-ts` extend their counterparts fro
 Those modules provide equivalent functions as `Array.prototype.map` or `Array.prototype.filter` but with a more `fp-ts`, `pipe`-friendly API:
 
 ```typescript
+import { readonlyArray } from "fp-ts";
 const array = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-pipe(array, Array.filter(isEven), Array.map(square));
+pipe(array, readonlyArray.filter(isEven), readonlyArray.map(square));
 // => [0, 4, 16, 36, 64]
 ```
 
 #### <a name="filter-map"></a>Filter and map in one go
 
-Sometimes, you want to map an array with a function that may fail to produce a value and then get rid of those failures. That is precisely what `Array.filterMap` does:
+Sometimes, you want to map an array with a function that may fail to produce a value and then get rid of those failures. That is precisely what `array.filterMap` does:
 
 ```typescript
 // getById(id: Id): Option<Item>;
 const ids = [id1, id2, id3];
-const foundItems = pipe(ids, Array.filterMap(getById));
+const foundItems = pipe(ids, array.filterMap(getById));
 // => Array<Item>
 ```
 
@@ -301,20 +301,20 @@ const foundItems = pipe(ids, Array.filterMap(getById));
 Sorting strings:
 
 ```typescript
-import * as Ord from "fp-ts/lib/Ord";
+import { array, ord, string } from "fp-ts";
 
 const strings = ["zyx", "abc", "klm"];
 
-const sortedStrings = pipe(strings, Array.sort(Ord.ordString));
+const sortedStrings = pipe(strings, array.sort(string.Ord));
 // => ['abc', 'klm', 'zyx']
 ```
 
 There are various instances of `Ord` for primitive types, available in `fp-ts`:
 
-- Strings: `ordString: Ord<string>`
-- Numbers: `ordNumber: Ord<number>`
-- Booleans: `ordBoolean: Ord<boolean>`
-- Dates: `ordDate: Ord<Date>`
+- Strings: `string.Ord: Ord<string>`
+- Numbers: `number.Ord: Ord<number>`
+- Booleans: `boolean.Ord: Ord<boolean>`
+- Dates: `date.Ord: Ord<Date>`
 
 The `Ord` module also provides us with ways to manipulate and combine them to create richer sorting algorithms!
 
@@ -323,21 +323,21 @@ For example, to get an instance of `Ord` that will sort strings in reverse order
 ```typescript
 const strings = ["zyx", "abc", "klm"];
 
-const reversedOrdString = Ord.getDualOrd(Ord.ordString);
+const reversedOrdString = ord.reverse(string.Ord);
 
-const sortedStrings = pipe(strings, Array.sort(reversedOrdString));
+const sortedStrings = pipe(strings, array.sort(reversedOrdString));
 // => ['zyx', 'klm', 'abc']
 ```
 
 Some higher level types like `Option<A>` also implement `Ord`! In this particular case, `none` is considered lower than `some` for example. So if you want to sort an array of `Option<number>`:
 
 ```typescript
-const nums = [Option.some(1337), Option.none, Option.some(42)];
+const nums = [option.some(1337), option.none, option.some(42)];
 
-const ordOptionalNumbers = Option.getOrd(Ord.ordNumber);
+const ordOptionalNumbers = option.getOrd(number.Ord);
 
-const sortedNums = pipe(nums, Array.sort(ordOptionalNumbers));
-// => [Option.none, Option.some(42), Option.some(1337)]
+const sortedNums = pipe(nums, array.sort(ordOptionalNumbers));
+// => [option.none, option.some(42), option.some(1337)]
 ```
 
 Likewise, if you have a more complex construct, like a `User`:
@@ -349,26 +349,28 @@ interface User {
 }
 ```
 
-You can build various instance of `Ord<User>` based on your need with `Ord.contramap`. This function is just a way of defining how to access the field that will be used for sorting.
+You can build various instance of `Ord<User>` based on your need with `ord.contramap`. This function is just a way of defining how to access the field that will be used for sorting.
 
 ```typescript
+import { string, ord, number } from 'fp-ts';
+
 const byName = pipe(
-  Ord.ordString,
-  Ord.contramap((user: User) => user.name)
+  string.Ord,
+  ord.contramap((user: User) => user.name)
 );
 
 const byAge = pipe(
-  Option.getOrd(Ord.ordNumber),
-  Ord.contramap((user: User) => user.age)
+  option.getOrd(number.Ord),
+  ord.contramap((user: User) => user.age)
 );
 ```
 
-You can then tell `Array.sort` to use either one of these instances depending on your needs.
+You can then tell `array.sort` to use either one of these instances depending on your needs.
 
-Finally, if you need to combine those sorting conditions (first, sort by age, and then by name), you can use `Array.sortBy` which accepts an array of `Ord` instances, to be used in order:
+Finally, if you need to combine those sorting conditions (first, sort by age, and then by name), you can use `array.sortBy` which accepts an array of `Ord` instances, to be used in order:
 
 ```typescript
-const sortedUsers = pipe(users, Array.sortBy([byAge, byName]));
+const sortedUsers = pipe(users, array.sortBy([byAge, byName]));
 ```
 
 ## <a name="chaining"></a>Composing Functions
@@ -409,9 +411,9 @@ Remark: as you pass **one** value through your pipe, that's why `fp-ts` function
 ```typescript
 const myOption = pipe(
   "value",
-  Either.fromNullable('Given value was null'),
-  Option.fromEither
-); // myOption = Option.Some("value")
+  either.fromNullable('Given value was null'),
+  option.fromEither
+); // myOption = option.Some("value")
 ```
 
 #### <a name="flow"></a>Flow
@@ -431,7 +433,7 @@ Here `transformData` could be reused somewhere else, be simple and easy to pipe 
 
 ### <a name="combinators"></a>Working with data structures: Combinators
 
-Let's say you have a datastructure containing a value you wanna work with. You can have an `Option.some(3)` or an `Either.right(currentUser)` or even `["some", "strings"]`.
+Let's say you have a datastructure containing a value you wanna work with. You can have an `option.some(3)` or an `either.right(currentUser)` or even `["some", "strings"]`.
 Your value is encapsulated in a context, for example you computed your `currentUser` and maybe the computation could fail. To keep working with the value without removing its context (what we've seen above), we'll use combinators.
 
 #### <a name="map"></a> Mapping
@@ -448,22 +450,22 @@ You will use `map`. Map will unwrap the value, apply the function and then wrap 
 ```typescript
 const doubleIfEven = (n: number) => n % 2 === 0 ? 2 * n : n
 
-const optionEven = Option.some(2);
-const optionOdd = Option.some(3);
+const optionEven = option.some(2);
+const optionOdd = option.some(3);
 
-Option.map(doubleIfEven)(optionEven) // Option.some(4)
+option.map(doubleIfEven)(optionEven) // option.some(4)
 
 pipe(
   optionOdd
-  Option.map(doubleIfEven)
-) // Option.some(3)
+  option.map(doubleIfEven)
+) // option.some(3)
 ```
 
 According to your datastructure, maps behave differently. We all know the JS `Array.prototype.map` which actually unwraps values from an array, transform those values with a function, and then repacks the values in an Array.
 
 ```typescript
 [1, 2, 3].map(doubleIfEven); // [1, 4, 3]
-FPArray.map(doubleIfEven)([1, 2, 3]); // same result but using fp-ts
+map(doubleIfEven)([1, 2, 3]); // same result but using fp-ts
 ```
 
 `map` allows you to go from `DataStructure<A>` to `DataStructure<B>` as you can apply any function going from `A`.
@@ -471,7 +473,7 @@ FPArray.map(doubleIfEven)([1, 2, 3]); // same result but using fp-ts
 ```typescript
 pipe(
   facility, // Option<Facility>
-  Option.map((facility: Facility) => facility.country.code) // => returns an Option<CountryCode>
+  option.map((facility: Facility) => facility.country.code) // => returns an Option<CountryCode>
 );
 ```
 
@@ -480,11 +482,11 @@ pipe(
 `Map` behavior on Options is pretty simple. If there is `some` value, it will apply the function to the value. If the Option is `none`, it will just return `none`.
 
 ```typescript
-const someOption = Option.some(2);
-const noneOption = Option.none;
+const someOption = option.some(2);
+const noneOption = option.none;
 
-Option.map(doubleIfEven)(someOption); // Option.some(4)
-Option.map(doubleIfEven)(noneOption); // Option.none
+option.map(doubleIfEven)(someOption); // option.some(4)
+option.map(doubleIfEven)(noneOption); // option.none
 ```
 
 ##### <a name="mapeither"></a> Mapping Either
@@ -495,13 +497,13 @@ So `map` will only transform your data if you are in the right branch.
 If you want to map on the left branch, you can use `mapLeft`!
 
 ```typescript
-const rightValue = Either.right(2);
-const leftValue = Either.left(2);
+const rightValue = either.right(2);
+const leftValue = either.left(2);
 
-Either.map(doubleIfEven)(rightValue); // Either.right(4)
-Either.map(doubleIfEven)(leftValue); // Either.left(2)
+either.map(doubleIfEven)(rightValue); // either.right(4)
+either.map(doubleIfEven)(leftValue); // either.left(2)
 
-Either.mapLeft(doubleIfEven)(leftValue); // Either.left(4)
+either.mapLeft(doubleIfEven)(leftValue); // either.left(4)
 ```
 
 Eventually, there is also a bimap helper mapping the first function to the left branch, and the second function to the right branch
@@ -513,13 +515,13 @@ const evenErrorMessage = (n: number) => {
   return `${n} is odd and in Error State`;
 };
 
-const doubleOrError = Either.bimap(evenErrorMessage, doubleIfEven);
+const doubleOrError = either.bimap(evenErrorMessage, doubleIfEven);
 
-const rightValue = Either.right(2);
-const leftValue = Either.left(3);
+const rightValue = either.right(2);
+const leftValue = either.left(3);
 
-doubleOrError(rightValue); // Either.right(4)
-doubleOrError(leftValue); // Either.left("3 is odd and in Error State")
+doubleOrError(rightValue); // either.right(4)
+doubleOrError(leftValue); // either.left("3 is odd and in Error State")
 ```
 
 ##### <a name="maptaskeither"></a> Mapping TaskEither
@@ -536,24 +538,24 @@ So you have a context containing your value, `Option<number>`. But you want to a
 
 You could use `flatten` to transform an `Option<Option>` (or an `Array<Array>` etc) but we will more likely use `chain`
 
-Chain will unwrap the value, apply the function and then combine the initial context with the new context. That's it. What's implied is in order to combine, you can only chain functions that returns "roughly" the same context as the original one. IE, you `Either.chain` on functions returning Either.
+Chain will unwrap the value, apply the function and then combine the initial context with the new context. That's it. What's implied is in order to combine, you can only chain functions that returns "roughly" the same context as the original one. IE, you `either.chain` on functions returning Either.
 
 `chain` takes a function as parameter (the function transforming the value) and can then be applied to the value.
 
 ```typescript
 const doubleIfEvenElseNone = (n: number) => n % 2 === 0
-  ? Option.some(2 * n)
-  : Option.none
+  ? option.some(2 * n)
+  : option.none
 
-const optionEven = Option.some(2);
-const optionOdd = Option.some(3);
+const optionEven = option.some(2);
+const optionOdd = option.some(3);
 
-Option.chain(doubleIfEvenElseNone)(optionEven) // Option.some(4)
+option.chain(doubleIfEvenElseNone)(optionEven) // option.some(4)
 
 pipe(
   optionOdd,
-  Option.chain(doubleIfEvenElseNone)
-) // Option.none
+  option.chain(doubleIfEvenElseNone)
+) // option.none
 ```
 
 Please note as mentioned it is the same as
@@ -561,27 +563,27 @@ Please note as mentioned it is the same as
 ```typescript
 pipe(
   optionEven,
-  Option.map(doubleIfEvenElseNone), // Option.some(Option.some(4))
-  Option.flatten // Option.some(4)
+  option.map(doubleIfEvenElseNone), // option.some(option.some(4))
+  option.flatten // option.some(4)
 );
 
-Option.chain === flow(Option.map, Option.flatten);
+option.chain === flow(option.map, option.flatten);
 ```
 
 According to your datastructure, chains behave differently.
 
 ##### <a name="chainoption"></a> Chaining Options
 
-`Chain` behavior on Options is pretty simple. It applies the function to your value if the original is `some` else it return `none`. And that's about it!
+`chain` behavior on Options is pretty simple. It applies the function to your value if the original is `some` else it return `none`. And that's about it!
 
 ```typescript
-const someOption = Option.some(2);
-const someOddOption = Option.some(3);
-const noneOption = Option.none;
+const someOption = option.some(2);
+const someOddOption = option.some(3);
+const noneOption = option.none;
 
-Option.chain(doubleIfEvenElseNone)(someOption); // Option.some(4)
-Option.chain(doubleIfEvenElseNone)(someOddOption); // Option.none
-Option.chain(doubleIfEvenElseNone)(noneOption); // Option.none
+option.chain(doubleIfEvenElseNone)(someOption); // option.some(4)
+option.chain(doubleIfEvenElseNone)(someOddOption); // option.none
+option.chain(doubleIfEvenElseNone)(noneOption); // option.none
 ```
 
 ##### <a name="chaineither"></a> Chaining Either
@@ -600,16 +602,16 @@ const initialError = (): InitialError => "This is an initial Error";
 const notEvenError = (num: number): NotEvenError => `${num} is not Even`;
 
 // Here we instanciate three Either<InitialError, number>
-const rightEvenValue = Either.right(2);
-const rightOddValue = Either.right(3);
-const leftValue = Either.left(InitialError);
+const rightEvenValue = either.right(2);
+const rightOddValue = either.right(3);
+const leftValue = either.left(InitialError);
 
 const doubleIfEven = (n: number): Either<NotEvenError, number> =>
-  n % 2 === 0 ? Either.right(2 * n) : Either.left(notEvenError(n));
+  n % 2 === 0 ? either.right(2 * n) : either.left(notEvenError(n));
 
-Either.chainW(doubleIfEven)(rightEvenValue); // Either.right(4)
-Either.chainW(doubleIfEven)(rightOddValue); // Either.left(NotEvenError)
-Either.chainW(doubleIfEven)(leftValue); // Either.left(InitialError)
+either.chainW(doubleIfEven)(rightEvenValue); // either.right(4)
+either.chainW(doubleIfEven)(rightOddValue); // either.left(NotEvenError)
+either.chainW(doubleIfEven)(leftValue); // either.left(InitialError)
 ```
 
 We could not use `chain` in the above example as the returned Either type of the function was different from the input one.
@@ -619,22 +621,22 @@ If you want to use your data but return it unaltered to the rest of your pipelin
 ```typescript
 const doubleAndTellIfEven = (n: number): Either<NotEvenError, string> =>
   n % 2 === 0
-    ? Either.right(`${2 * n} is an even number!`)
-    : Either.left(notEvenError(n));
+    ? either.right(`${2 * n} is an even number!`)
+    : either.left(notEvenError(n));
 
-const rightEvenValue = Either.right(2);
-const rightOddValue = Either.right(3);
+const rightEvenValue = either.right(2);
+const rightOddValue = either.right(3);
 
 pipe(
   rightEvenValue,
-  Either.chainFirstW(doubleAndTellIfEven), // this goes right branch, but we drop the string returned and pass the initial value
-  Either.getOrElse(() => 0) // here we get the original 2
+  either.chainFirstW(doubleAndTellIfEven), // this goes right branch, but we drop the string returned and pass the initial value
+  either.getOrElse(() => 0) // here we get the original 2
 );
 
 pipe(
   rightOddValue,
-  Either.chainFirstW(doubleAndTellIfEven), // this goes left branch due to failed validation
-  Either.getOrElse(() => 0) // here we get default 0
+  either.chainFirstW(doubleAndTellIfEven), // this goes left branch due to failed validation
+  either.getOrElse(() => 0) // here we get default 0
 );
 ```
 
@@ -647,21 +649,21 @@ instead of then doing `fromEither` and `flatten`, you can use the `chainEitherK`
 
 ```typescript
 
-const rightEvenValue = TaskEither.right(2);
-const rightOddValue = TaskEither.right(3);
+const rightEvenValue = taskEither.right(2);
+const rightOddValue = taskEither.right(3);
 
 // note this function returns an Either!
 const doubleIfEven = (n: number): Either<NotEvenError, number> =>
-  n % 2 === 0 ? Either.right(2 * n) : Either.left(notEvenError(n));
+  n % 2 === 0 ? either.right(2 * n) : either.left(notEvenError(n));
 
 pipe(
   rightEvenValue
-  TaskEither.chainEitherKW(doubleIfEven) // this returns TaskEither(4)
+  taskEither.chainEitherKW(doubleIfEven) // this returns TaskEither(4)
 )
 
 pipe(
   rightOddValue
-  TaskEither.chainEitherKW(doubleIfEven) // this returns TaskEither.left(NotEvenError)
+  taskEither.chainEitherKW(doubleIfEven) // this returns TaskEither.left(NotEvenError)
 )
 
 ```
@@ -681,30 +683,27 @@ Or you map a function that may fail on an `Option` and end up having an `Option<
 We can do it by using the `sequence` function of our data structures. When combining, please note an `Array<Either>` where some Either are right and other left, will turn into an `Either.left`
 
 ```typescript
-import * as FPArray from "fp-ts/lib/Array";
-import * as Either from "fp-ts/lib/Either";
-import * as Option from "fp-ts/lib/Option";
-import * as TaskEither from "fp-ts/lib/TaskEither";
+import { array, either, option, taskEither } from "fp-ts";
 
 const arrayOfEither = [
-  Either.right(42),
-  Either.left(SomeError),
-  Either.right(1337),
+  either.right(42),
+  either.left(SomeError),
+  either.right(1337),
 ];
-const eitherOfArray = FPArray.array.sequence(Either.either)(arrayOfEither);
-// eitherOfArray: Either<SomeError, Array<number>> == Either.left(SomeError)
+const eitherOfArray = array.sequence(either.Applicative)(arrayOfEither);
+// eitherOfArray: Either<SomeError, Array<number>> == either.left(SomeError)
 
-const arrayOrRight = [Either.right(42), Either.right(1337)];
+const arrayOrRight = [either.right(42), either.right(1337)];
 
-const eitherOfArray = FPArray.array.sequence(Either.either)(arrayOrRight);
-// eitherOfArray: Either<SomeError, Array<number>> == Either.right([42, 1337])
+const eitherOfArray = array.sequence(either.Applicative)(arrayOrRight);
+// eitherOfArray: Either<SomeError, Array<number>> == either.right([42, 1337])
 
-const optionOfTaskEither = Option.some(TaskEither.right(42));
-const taskEitherOfOption = Option.option.sequence(TaskEither.taskEither)(
+const optionOfTaskEither = option.some(taskEither.right(42));
+const taskEitherOfOption = option.sequence(taskEither.Applicative)(
   optionOfTaskEither
 );
 // taskEitherOfOption: TaskEither<SomeError, Option<number>> ==
-//   TaskEither.right(Option.some(42))
+//   taskEither.right(option.some(42))
 ```
 
 ### <a name="apply-return"></a>Applying functions returning another data type
@@ -713,12 +712,15 @@ Another useful use case (overlapping a bit the above one), is when you apply a f
 You can simply use `map` of course, like you have an `Option` and wanna fetch something if the option is some, and you'll end up with an `Option<TaskEither>`
 
 ```typescript
-const getUserPreferences = (userId: UserID) => TaskEither<UserNotFound, UserPreferences>
-const optionUserId = Option.some(userId)
+import { TaskEither } from "fp-ts/TaskEither";
+import { option } from "fp-ts";
+
+const getUserPreferences: (userId: UserID) => TaskEither<UserNotFound, UserPreferences> = /* ... */;
+const optionUserId = option.some(userId)
 
 pipe(
   optionUser,
-  Option.map(getUserPreferences) // this will give you an Option<TaskEither.right(userPreferences)>
+  option.map(getUserPreferences) // this will give you an Option<TaskEither.right(userPreferences)>
 )
 ```
 
@@ -729,15 +731,15 @@ traverse takes a first argument which is the datastructure that will be returned
 
 ```typescript
 const getUserPreferences = (userId: UserID) => TaskEither<UserNotFound, UserPreferences>
-const optionUserId = Option.some(userId)
+const optionUserId = option.some(userId)
 
-const result = Option.option.traverse(TaskEither.taskEither)(optionUserId, getUserPreferences)
+const result = option.traverse(TaskEither.taskEither)(optionUserId, getUserPreferences)
 // 👆 this returns a TaskEither<UserNotFound, Option<UserPreferences>>
 
 
 pipe(
   (optionUser, getUserPreferences),
-  Option.option.traverse(TaskEither.taskEither) // this is the same as above.
+  option.traverse(TaskEither.taskEither) // this is the same as above.
 )
 ```
 
@@ -746,12 +748,18 @@ pipe(
 Here is another example of using `traverse`:
 
 ```typescript
-const getUserPreferences = (userId: UserID) => TaskEither<UserNotFound, UserPreferences>
+import { TaskEither } from "fp-ts/TaskEither";
+import { readonlyArray, taskEither } from "fp-ts";
+
+const getUserPreferences: (userId: UserID) => TaskEither<UserNotFound, UserPreferences> = /* ... */;
 const userIds = [userId, anotherUserId, thirdUserId];
 
-const result = ReadonlyArray.traverse(TaskEither.ApplicativeSeq)(
+const result = pipe(
+  userIds,
+  readonlyArray.traverse(taskEither.ApplicativeSeq)(
     getUserPreferences
-  )(userIds)
+  )
+);
 // result is TaskEither<string, UserPreferences[]>
 ```
 
@@ -760,6 +768,7 @@ Not that if in the above example any of `TaskEither` returned by `getUserPrefere
 What if you need to get all the values returned by `getUserPreferences` that are `Right` though?
 
 ```typescript
+import { readonlyArray, task } from "fp-ts";
 import { pipe } from "fp-ts/function";
 
 // getUserPreferences and userIds are as in the above example
@@ -767,10 +776,10 @@ import { pipe } from "fp-ts/function";
 const result = pipe(
   validAndInvalidUserIds,
   // notice how in the following line we use Task instead of TaskEither
-  ReadonlyArray.traverse(Task.ApplicativeSeq)(getUserPreferences), // this gives a Task<Either[]>
+  readonlyArray.traverse(task.ApplicativeSeq)(getUserPreferences), // this gives a Task<Either[]>
   // next two lines allow to get all values from Eithers that are Right
-  Task.map(ReadonlyArray.separate),
-  Task.map(({ right }) => right)
+  task.map(readonlyArray.separate),
+  task.map(({ right }) => right)
 );
 // result is Task<UserPreferences[]>
 ```
@@ -785,6 +794,9 @@ You can see the definition given by Giulio Canti [here](https://dev.to/gcanti/ge
 Let's take an example:
 
 ```typescript
+import { TaskEither } from "fp-ts/TaskEither";
+import { taskEither, reader } from "fp-ts";
+
 const foo = ({
   firstId,
   secondId,
@@ -794,7 +806,7 @@ const foo = ({
 }): TaskEither<E, A> =>
   pipe(
     firstDependency.getById(firstId),
-    TaskEither.chain(() => secondDependency.sendEvent({ secondId, eventData }))
+    taskEither.chain(() => secondDependency.sendEvent({ secondId, eventData }))
   );
 
 // To call this foo method you'll write:
@@ -804,6 +816,9 @@ foo({ firstId, secondId, eventData, firstDependency, secondDependency });
 Using `Reader`, you could write it this way:
 
 ```typescript
+import { ReaderTaskEither } from "fp-ts/ReaderTaskEither";
+import { readerTaskEither, reader } from "fp-ts";
+
 interface R1 {
   firstDependency: Dep1;
 }
@@ -818,19 +833,19 @@ const foo = ({
 }): ReaderTaskEither<R1 & R2, E, A> =>
   pipe(
     getById(firstId),
-    ReaderTaskEither.chain(() => sendEvent({ secondId, eventData }))
+    readerTaskEither.chain(() => sendEvent({ secondId, eventData }))
   );
 
 // with:
 const getById = (firstId) =>
   pipe(
-    Reader.ask<R1>(),
-    Reader.map(({ firstDependency }) => firstDependency.getById(firstId))
+    reader.ask<R1>(),
+    reader.map(({ firstDependency }) => firstDependency.getById(firstId))
   );
 const sendEvent = ({ secondId, eventData }) =>
   pipe(
-    Reader.ask<R2>(),
-    Reader.map(({ secondDependency }) =>
+    reader.ask<R2>(),
+    reader.map(({ secondDependency }) =>
       secondDependency.sendEvent({ secondId, eventData })
     )
   );
@@ -848,16 +863,17 @@ You need to adapt some methods to be able to properly use the `Reader` pattern, 
 At some point, you might need to call methods in parallel, for instance because you need to send data to multiple external services and you don't want to decrease the performance of your use case. Here is an example that shows you how to call two `ReaderTaskEither` in parallel :
 
 ```typescript
-import * as RTE from "fp-ts/ReaderTaskEither";
+import { ReaderTaskEither } from "fp-ts/ReaderTaskEither";
+import { readerTaskEither } from "fp-ts";
 import { pipe } from "fp-ts/function";
 
-declare const foo: RTE.ReaderTaskEither<R1, E1, A1>;
-declare const bar: RTE.ReaderTaskEither<R2, E2, A2>;
+declare const foo: ReaderTaskEither<R1, E1, A1>;
+declare const bar: ReaderTaskEither<R2, E2, A2>;
 
 pipe(
-  RTE.Do,
-  RTE.apS("foo", foo),
-  RTE.apSW("bar", bar)
+  readerTaskEither.Do,
+  readerTaskEither.apS("foo", foo),
+  readerTaskEither.apSW("bar", bar)
   // this returns RTE.ReaderTaskEither<R1 & R2, E1 | E2, {readonly foo: A1; readonly bar: A2}>
 );
 ```
