@@ -110,14 +110,14 @@ option.getOrElseW(() => 3)(noneValue); // 3
 
 ##### Compute and get the value
 
-The last way to get your value is `fold` and it allows you to compute before returning it.
+The last way to get your value is `match` and it allows you to compute before returning it.
 it takes a two functions, the first one is executed if your Option is `none`, the second one if your `Option` contains some value.
 
 ```typescript
 const noneValue = option.none;
 const someValue = option.of(10);
 
-const doubleOrZero = option.fold(
+const doubleOrZero = option.match(
   () => 0, // this is called when your Option is none
   (n: number) => 2 * n // called when your Option has some value
 );
@@ -200,13 +200,13 @@ either.getOrElse(() => 0)(rightValue); // 10
 
 ##### Compute left and right branches
 
-The `fold` destructor also takes two functions, the first one representing what to do on left branch, the second one what to do on right branch.
+The `match` destructor also takes two functions, the first one representing what to do on left branch, the second one what to do on right branch.
 
 ```typescript
 const leftValue = either.left("Division by Zero!");
 const rightValue = either.right(10);
 
-const doubleOrZero = either.fold(
+const doubleOrZero = either.match(
   (eitherError: string) => {
     console.log(`The error was ${eitherError}`);
     return 0;
