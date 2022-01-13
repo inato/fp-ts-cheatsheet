@@ -301,20 +301,20 @@ const foundItems = pipe(ids, array.filterMap(getById));
 Sorting strings:
 
 ```typescript
-import { array, ord } from "fp-ts";
+import { array, ord, string } from "fp-ts";
 
 const strings = ["zyx", "abc", "klm"];
 
-const sortedStrings = pipe(strings, array.sort(ord.ordString));
+const sortedStrings = pipe(strings, array.sort(string.Ord));
 // => ['abc', 'klm', 'zyx']
 ```
 
 There are various instances of `Ord` for primitive types, available in `fp-ts`:
 
-- Strings: `ordString: Ord<string>`
-- Numbers: `ordNumber: Ord<number>`
-- Booleans: `ordBoolean: Ord<boolean>`
-- Dates: `ordDate: Ord<Date>`
+- Strings: `string.Ord: Ord<string>`
+- Numbers: `number.Ord: Ord<number>`
+- Booleans: `boolean.Ord: Ord<boolean>`
+- Dates: `date.Ord: Ord<Date>`
 
 The `Ord` module also provides us with ways to manipulate and combine them to create richer sorting algorithms!
 
@@ -323,7 +323,7 @@ For example, to get an instance of `Ord` that will sort strings in reverse order
 ```typescript
 const strings = ["zyx", "abc", "klm"];
 
-const reversedOrdString = ord.getDualOrd(ord.ordString);
+const reversedOrdString = ord.reverse(string.Ord);
 
 const sortedStrings = pipe(strings, array.sort(reversedOrdString));
 // => ['zyx', 'klm', 'abc']
@@ -334,7 +334,7 @@ Some higher level types like `Option<A>` also implement `Ord`! In this particula
 ```typescript
 const nums = [option.some(1337), option.none, option.some(42)];
 
-const ordOptionalNumbers = option.getOrd(ord.ordNumber);
+const ordOptionalNumbers = option.getOrd(number.Ord);
 
 const sortedNums = pipe(nums, array.sort(ordOptionalNumbers));
 // => [option.none, option.some(42), option.some(1337)]
@@ -352,13 +352,15 @@ interface User {
 You can build various instance of `Ord<User>` based on your need with `ord.contramap`. This function is just a way of defining how to access the field that will be used for sorting.
 
 ```typescript
+import { string, ord, number } from 'fp-ts';
+
 const byName = pipe(
-  ord.ordString,
+  string.Ord,
   ord.contramap((user: User) => user.name)
 );
 
 const byAge = pipe(
-  option.getOrd(ord.ordNumber),
+  option.getOrd(number.Ord),
   ord.contramap((user: User) => user.age)
 );
 ```
