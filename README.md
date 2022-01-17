@@ -733,13 +733,13 @@ traverse takes a first argument which is the datastructure that will be returned
 const getUserPreferences = (userId: UserID) => TaskEither<UserNotFound, UserPreferences>
 const optionUserId = option.some(userId)
 
-const result = option.traverse(TaskEither.taskEither)(optionUserId, getUserPreferences)
+const result = option.traverse(taskEither.ApplicativeSeq)(getUserPreferences)(optionUserId)
 // 👆 this returns a TaskEither<UserNotFound, Option<UserPreferences>>
 
 
 pipe(
-  (optionUser, getUserPreferences),
-  option.traverse(TaskEither.taskEither) // this is the same as above.
+  optionUser,
+  option.traverse(taskEither.ApplicativeSeq)(getUserPreferences) // this is the same as above.
 )
 ```
 
