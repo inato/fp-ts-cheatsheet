@@ -71,7 +71,7 @@ const leftEither = either.left("whatever");
 const rightEither = either.right("value");
 
 const noneValue = option.fromEither(leftEither); // option.None
-const optionValue = option.fromNullable(rightEither); // option.Some("value")
+const optionValue = option.fromEither(rightEither); // option.Some("value")
 ```
 
 #### <a name="get-options"></a>Get Value from an Option
