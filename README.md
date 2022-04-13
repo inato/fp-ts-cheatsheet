@@ -1,11 +1,13 @@
 # :memo: `fp-ts` cheatsheet
 
+More detailed explanations can be found in the [Details](Details.md) document.
+
 1. [Imports](#imports)
-2. [Data Structures](#data-structures)
-3. [Composing Functions](#chaining)
-4. [From one data structure to another](#flip-data-struct)
-5. [Reader](#reader)
-6. [Some specific examples](#specific-examples)
+2. [Pipe and Flow](#pipe-flow)
+3. [Option](#option)
+4. [Either](#either)
+5. [TaskEither](#taskeither)
+6. [Array and ReadonlyArray](#array)
 
 ## <a name="imports"></a>Imports
 
@@ -239,9 +241,9 @@ const eitherValue = await someTaskEither(); // innerValue: Either<never, number>
 const innerValue = either.getOrElse(() => 0)(eitherValue); // 42
 ```
 
-## <a name="arrays"></a>Array and ReadonlyArray
+## <a name="array"></a>Array and ReadonlyArray
 
-### Basic manipulation
+### <a name="basic-manipulation"></a>Basic manipulation
 
 ```ts
 const someArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
