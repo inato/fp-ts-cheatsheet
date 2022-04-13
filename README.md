@@ -15,7 +15,6 @@ More detailed explanations can be found in the [Details](Details.md) document.
 import { either, option } from 'fp-ts'; // import modules from root
 import { flow, pipe } from 'fp-ts/functions'; // import functions from functions
 import { Either } from 'fp-ts/Either'; // import types from their module
-import { Option } from 'fp-ts/Option';
 
 // rename common long module names
 import { readerTaskEither as rte } from 'fp-ts';
@@ -55,7 +54,7 @@ option.fromNullable(null); // => option.none
 option.fromNullable('value'); // => option.some('value')
 
 // Build from a predicate
-const isEven = (number) => number % 2 === 0;
+const isEven = number => number % 2 === 0;
 
 option.fromPredicate(isEven)(3); // => option.none
 option.fromPredicate(isEven)(4); // => option.some(4)
@@ -72,34 +71,31 @@ option.fromEither(rightEither); // => option.some('value')
 
 ```ts
 const noneValue = option.none;
-const someValue = option.of('value');
+const someValue = option.of(42);
 
 // Convert Option<T> to T | undefined
 option.toUndefined(noneValue); // => undefined
-option.toUndefined(someValue); // => 'value'
+option.toUndefined(someValue); // => 42
 
 // Convert Option<T> to T | null
 option.toNullable(noneValue); // => null
-option.toNullable(someValue); // => 'value'
+option.toNullable(someValue); // => 42
 
 // Convert Option<T> with a default value
-option.getOrElse(() => 'default')(noneValue); // => 'default'
-option.getOrElse(() => 'default')(someValue); // => 'value'
+option.getOrElse(() => 0)(noneValue); // => 0
+option.getOrElse(() => 0)(someValue); // => 42
 
 // Convert Option<T> to T | U with a default value of type U
-option.getOrElseW(() => 3)(noneValue); // => 3: string | number
+option.getOrElseW(() => 'default')(noneValue); // => 'default': number | string
 
 // Apply a different function on None/Some(...)
-const noneValue = option.none;
-const someValue = option.of(10);
-
 const doubleOrZero = option.match(
   () => 0, // none case
   (n: number) => 2 * n // some case
 );
 
 doubleOrZero(noneValue); // => 0
-doubleOrZero(someValue); // => 20
+doubleOrZero(someValue); // => 84
 
 // Pro-tip: option.match is short for the following:
 const doubleOfZeroBis = flow(
@@ -136,13 +132,13 @@ eitherBuilder(4); // => either.right(4)
 const noneValue = option.none;
 const someValue = option.some('value');
 
-either.fromOption('value was nullish')(noneValue); // => either.left('value was nullish')
-either.fromOption('value was nullish')(someValue); // => either.right('value')
+either.fromOption(() => 'value was nullish')(noneValue); // => either.left('value was nullish')
+either.fromOption(() => 'value was nullish')(someValue); // => either.right('value')
 ```
 
 ### <a name="either-getters"></a>Extract inner value
 
-```typescript
+```ts
 const leftValue = either.left("Division by Zero!");
 const rightValue = either.right(10);
 
@@ -153,7 +149,7 @@ either.getOrElse(() => 0)(rightValue); // => 10
 // Apply a different function on Left(...)/Right(...)
 const doubleOrZero = either.match(
   (error: string) => {
-    console.log(`The error was ${eitherError}`);
+    console.log(`The error was ${error}`);
     return 0;
   },
   (n: number) => 2 * n,
@@ -177,31 +173,12 @@ const doubleOrZeroBis = flow(
 ### <a name="taskeither-builders"></a>Create a `TaskEither<E, A>`
 
 ```ts
-// Build an Either
+// Build a TaskEither
 const leftValue = taskEither.left('value');
 const rightValue = taskEither.right('value');
 
-// Build from a value
-taskEither.fromNullable('value was nullish')(null); // => taskEither.left('value was nullish')
-taskEither.fromNullable('value was nullish')('value'); // => taskEither.right('value')
-
-// Build from a predicate
-const isEven = (num: number) => num % 2 === 0;
-
-const taskEitherBuilder = taskEither.fromPredicate(
-  isEven,
-  number => `${number} is an odd number`
-);
-
-taskEitherBuilder(3); // => taskEither.left('3 is an odd number')
-taskEitherBuilder(4); // => taskEither.right(4)
-
-// Convert from Option
-const noneValue = option.none;
-const someValue = option.some('value');
-
-taskEither.fromOption('value was nullish')(noneValue); // => taskEither.left('value was nullish')
-taskEither.fromOption('value was nullish')(someValue); // => taskEither.right('value')
+// The taskEither module also provides similar builder functions
+// to either, namely: `fromNullable`, `fromOption`, `fromPredicate`...
 
 // Convert from Either
 const eitherValue = either.right(42);
@@ -210,8 +187,6 @@ taskEither.fromEither(eitherValue); // => taskEither.right(42)
 
 // Build from an async function
 const asyncIsEven = async (n: number) => {
-  await sleep(1000);
-
   if (!isEven(n)) {
     throw new Error(`${n} is odd`);
   }
@@ -242,9 +217,13 @@ await someTask(); // => 42
 const someTaskEither = taskEither.right(42);
 const eitherValue = await someTaskEither(); // => either.right(42)
 either.getOrElse(() => 0)(eitherValue); // => 42
+
+// Or more directly
+const infaillibleTask = taskEither.getOrElse(() => 0)(someTaskEither); // => task.of(42)
+await infaillibleTask(); // => 42
 ```
 
-## <a name="array"></a>Array and ReadonlyArray
+## <a name="array"></a>ReadonlyArray
 
 ### <a name="basic-manipulation"></a>Basic manipulation
 
@@ -254,14 +233,14 @@ const someArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 // filter and map
 const result = pipe(
   someArray,
-  array.filter(isEven),
-  array.map(square)
+  readonlyArray.filter(isEven),
+  readonlyArray.map(square)
 ); // => [0, 4, 16, 36, 64]
 
 // or in one go with filterMap
 const result = pipe(
   someArray,
-  array.filterMap(
+  readonlyArray.filterMap(
     flow(option.fromPredicate(isEven), option.map(square))
   )
 );
@@ -273,24 +252,18 @@ const result = pipe(
 const strings = ['zyx', 'abc', 'klm'];
 
 // basic sort
-const sortedStrings = pipe(
-  strings,
-  array.sort(string.Ord)
-); // => ['abc', 'klm', 'zyx']
+const sortedStrings = pipe(strings, readonlyArray.sort(string.Ord)); // => ['abc', 'klm', 'zyx']
 
 // reverse sort
 const reverseSortedStrings = pipe(
   strings,
-  array.sort(ord.reverse(string.Ord))
+  readonlyArray.sort(ord.reverse(string.Ord))
 ); // => ['zyx', 'klm', 'abc']
 
 // sort Option
 const optionalNumbers = [option.some(1337), option.none, option.some(42)];
 
-const sortedNums = pipe(
-  nums,
-  array.sort(option.getOrd(number.Ord))
-); // => [option.none, option.some(42), option.some(1337)]
+const sortedNums = pipe(nums, readonlyArray.sort(option.getOrd(number.Ord))); // => [option.none, option.some(42), option.some(1337)]
 
 // sort complex objects with different rules
 type User = {
@@ -308,5 +281,5 @@ const byAge = pipe(
   ord.contramap((user: User) => user.age)
 );
 
-const sortUsers = array.sortBy([byAge, byName]); // will sort an array of users by age first, then by name
+const sortUsers = readonlyArray.sortBy([byAge, byName]); // will sort an array of users by age first, then by name
 ```
