@@ -8,6 +8,7 @@ More detailed explanations can be found in the [Details](Details.md) document.
 4. [Either](#either)
 5. [TaskEither](#taskeither)
 6. [Array and ReadonlyArray](#array)
+7. [Do-notation](#do-notation)
 
 ## <a name="imports"></a>Imports
 
@@ -282,4 +283,39 @@ const byAge = pipe(
 );
 
 const sortUsers = readonlyArray.sortBy([byAge, byName]); // will sort an array of users by age first, then by name
+```
+
+## <a name="do-notation"></a>Do-notation
+
+```ts
+import { readerTaskEither as rte } from 'fp-ts';
+import { pipe } from 'fp-ts/function';
+import { ReaderTaskEither } from 'fp-ts/ReaderTaskEither';
+
+declare const foo: ReaderTaskEither<R1, E1, A1>;
+declare const bar: ReaderTaskEither<R2, E2, A2>;
+declare const baz: (props: {
+  foo: A1;
+  bar: A2;
+}) => ReaderTaskEither<R3, E3, A3>;
+declare const quux: (props: {
+  foo: A1;
+  bar: A2;
+  baz: A3;
+}) => ReaderTask<R4, A4>;
+declare const transform: (props: { foo: A1; bar: A2; baz: A3 }) => B;
+
+pipe(
+  rte.Do,
+  rte.apS('foo', foo),
+  rte.apSW('bar', bar),
+  rte.bindW('baz', baz),
+  rte.chainFirstReaderTaskKW(quux),
+  rte.map(transform)
+);
+// => ReaderTaskEither<
+//      R1 & R2 & R3 & R4,
+//      E1 | E2 | E3,
+//      B,
+//    >
 ```
