@@ -590,7 +590,7 @@ option.chain(doubleIfEvenElseNone)(noneOption); // option.none
 
 Remeber `Either` is generally considered as "Everything went well" (right branch) vs "Something happened" (left branch).
 
-Let's say you have an either `Either<E, number>`, where `E` is the left type, and `number` the right brancch type
+Let's say you have an either `Either<E, number>`, where `E` is the left type, and `number` the right branch type
 So `chain` will only transform your data if you are in the right branch. Otherwise, it will return your Either as it was.
 To "flatten" your Either, there are two cases:
 
