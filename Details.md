@@ -864,7 +864,7 @@ You need to adapt some methods to be able to properly use the `Reader` pattern, 
 
 ### <a name="call-in-parallel"></a> Call in parallel
 
-At some point, you might need to call methods in parallel, for instance because you need to send data to multiple external services and you don't want to decrease the performance of your use case. Here is an example that shows you how to call two `ReaderTaskEither` in parallel :
+At some point, you might need to call methods in parallel, for instance because you need to send data to multiple external services and you don't want to decrease the performance of your use case. The Do notation can help you for this ([here's the official documentation](https://gcanti.github.io/fp-ts/guides/do-notation.html) if you want more details). Below is an example that shows you how to call two `ReaderTaskEither` in parallel :
 
 ```typescript
 import { ReaderTaskEither } from "fp-ts/ReaderTaskEither";
